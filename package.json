@@ -1,7 +1,7 @@
 {
   "name": "extract-comments",
-  "description": "Thin wrapper around esprima for extracting code comments from a glob of files.",
-  "version": "0.1.1",
+  "description": "Extract code comments from string or from a glob of files.",
+  "version": "0.3.0",
   "homepage": "https://github.com/jonschlinkert/extract-comments",
   "author": {
     "name": "Jon Schlinkert",
@@ -22,7 +22,9 @@
   ],
   "keywords": [
     "code",
+    "parse",
     "comments",
+    "comment",
     "extract",
     "esprima",
     "glob"
@@ -35,13 +37,14 @@
     "test": "mocha -R spec"
   },
   "devDependencies": {
-    "chai": "~1.9.1",
-    "fs-utils": "^0.4.3",
     "mocha": "~1.18.2",
-    "verb": "~0.2.0"
+    "should": "^4.0.4",
+    "verb": "^0.2.15",
+    "verb-tag-jscomments": "^0.2.2"
   },
   "dependencies": {
-    "esprima": "^1.2.2",
-    "globule": "^0.2.0"
+    "esprima": "git+https://git@github.com/ariya/esprima",
+    "lodash": "^2.4.1",
+    "map-files": "^0.1.1"
   }
 }

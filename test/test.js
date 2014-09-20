@@ -1,25 +1,29 @@
-var file = require('fs-utils');
-var expect = require('chai').expect;
-var extract = require('../');
+/*!
+ * extract-comments <https://github.com/jonschlinkert/extract-comments>
+ *
+ * Copyright (c) 2014 Jon Schlinkert, contributors.
+ * Licensed under the MIT license.
+ */
 
-var fixtures = 'test/fixtures/**/*.js';
+'use strict';
 
-describe('when extract-comments is passed an array of file paths:', function () {
+var fs = require('fs');
+var path = require('path');
+var util = require('util');
+
+var assert = require('assert');
+var should = require('should');
+var glob = require('globby');
+var extract = require('..');
+
+describe('.parseFiles():', function () {
   it('should read each file as a string and extract comments from the code.', function () {
-    var files = file.find(fixtures);
-    var firstFileName = file.basename(files[0]);
-    var actual = extract(fixtures);
+    var name = glob.sync('test/fixtures/**/*.js')[0];
+    var actual = extract('test/fixtures/**/*.js');
 
-    expect(actual).to.be.an('object');
-    expect(Object.keys(actual)).to.have.length.above(1);
-    expect(actual).to.have.property(firstFileName);
+    actual.should.be.an.object;
+    assert.equal(Object.keys(actual).length > 1, true)
+    actual.should.have.property(name);
   });
 });
 
-describe('when true is passed as a second parameter', function () {
-  it('should generate an array, instead of an object', function () {
-    var actual = extract(fixtures, true);
-    expect(actual).to.be.an('array');
-    expect(actual).to.have.length.above(1);
-  });
-});
