@@ -1,7 +1,7 @@
 {
   "name": "extract-comments",
   "description": "Extract code comments from string or from a glob of files.",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "homepage": "https://github.com/jonschlinkert/extract-comments",
   "author": {
     "name": "Jon Schlinkert",
