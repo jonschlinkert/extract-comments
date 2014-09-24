@@ -11,6 +11,7 @@ var fs = require('fs');
 var mapFiles = require('map-files');
 var lineCount = require('line-count');
 var extend = require('mixin-deep');
+var extractComments = require('./lib/extract');
 
 
 /**
@@ -28,31 +29,30 @@ var extend = require('mixin-deep');
  * @api public
  */
 
-function extract(str) {
-  var match, o = {};
-  var line = 1;
+function extract(str, opts) {
+  str = str.replace(/\r/g, '');
+  opts = opts || {};
 
-  while (match = (/\/\*{1,2}[^\*!]([\s\S]*?)\*\//g).exec(str)) {
-    var start = str;
+  var extract = extractComments(opts);
+  var lines   = str.split(/\n/);
+  var comments  = [];
+  var comment;
 
-    // add lines from before the comment
-    line += lineCount(start.substr(0, match.index)) - 1;
-
-    // Update the string
-    str = str.substr(match.index + match[1].length);
-
-    o[line] = {
-      type: 'comment',
-      comment: match[1],
-      begin: line,
-      end: line + lineCount(match[1]) - 1
-    };
-
-    // add lines from the comment itself
-    line += lineCount(start.substr(match.index, match[1].length)) - 1;
+  while (lines.length) {
+    comment = extract(lines.shift());
+    if (comment) {
+      comments.push(comment);
+    }
   }
-  return o;
+
+  return comments.reduce(function(acc, obj) {
+    obj.type = 'comment';
+    obj.comment = obj.comment.join('\n');
+    acc[obj.begin] = obj;
+    return acc;
+  }, {});
 }
+
 
 
 /**

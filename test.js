@@ -17,11 +17,11 @@ describe('.extract():', function () {
 
     actual.should.be.an.object;
     actual.should.have.property('fixtures/assemble.js');
-    actual['fixtures/assemble.js'].should.have.property('122',  {
-      type: 'comment',
-      comment: ' * Initialize default configuration.\n *\n * @api private\n ',
+    actual['fixtures/assemble.js'].should.have.property('122', {
       begin: 122,
-      end: 125
+      comment: '\nInitialize default configuration.\n\n@api private\n',
+      end: 126,
+      type: 'comment'
     });
   });
 });

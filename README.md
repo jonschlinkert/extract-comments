@@ -18,7 +18,7 @@ npm test
 ```
 
 ## API
-### [extract](index.js#L31)
+### [extract](index.js#L32)
 
 Extract code comments from the given `string`.
 
@@ -52,54 +52,14 @@ You may also pass a custom `rename` function on the options to change the key of
 ## Example results
 
 ```js
-{ 'test/fixtures/assemble.js':
-   [ { type: 'Block',
-       value: '!\n * assemble <https://github.com/assemble/assemble>\n *\n * Copyright (c) 2014 Jon Schlinkert, Brian Woodward, contributors.\n * Licensed under the MIT license.\n ',
-       loc: { start: { line: 1, column: 0 }, end: { line: 6, column: 3 } } },
-     { type: 'Line',
-       value: ' Module dependencies',
-       loc:
-        { start: { line: 10, column: 0 },
-          end: { line: 10, column: 22 } } },
-     { type: 'Line',
-       value: ' Local modules.',
-       loc:
-        { start: { line: 39, column: 0 },
-          end: { line: 39, column: 17 } } },
-     { type: 'Line',
-       value: ' Plugins and middleware',
-       loc:
-        { start: { line: 44, column: 0 },
-          end: { line: 44, column: 25 } } },
-     { type: 'Block',
-       value: '*\n * Set the current working directory for all paths.\n * Default is `process.cwd()`, this does not need to\n * be changed unless you require something different.\n *\n * ```js\n * assemble.cwd(\'bench\');\n * ```\n *\n * @param  {String|Array} `args` File path or paths.\n * @return {String}\n * @api public\n ',
-       loc:
-        { start: { line: 414, column: 0 },
-          end: { line: 426, column: 3 } } },
+{ 'fixtures/assemble.js':
+   // the line number
+   { '1':
+      { comment: '!\nassemble <https://github.com/assemble/assemble>\n\nCopyright (c) 2014 Jon Schlinkert, Brian Woodward, contributors.\nLicensed under the MIT license.\n',
+        begin: 1,
+        end: 6,
+        type: 'comment' }
 ```
-Or when `extract.fromString()` is used:
-
-```js
-{ type: 'Block',
-     value: '!\n * assemble <https://github.com/assemble/assemble>\n *\n * Copyright (c) 2014 Jon Schlinkert, Brian Woodward, contributors.\n * Licensed under the MIT license.\n ',
-     loc: { start: { line: 1, column: 0 }, end: { line: 6, column: 3 } } },
-   { type: 'Line',
-     value: ' Module dependencies',
-     loc:
-      { start: { line: 10, column: 0 },
-        end: { line: 10, column: 22 } } },
-   { type: 'Line',
-     value: ' Local modules.',
-     loc:
-      { start: { line: 39, column: 0 },
-        end: { line: 39, column: 17 } } },
-   { type: 'Line',
-     value: ' Plugins and middleware',
-     loc:
-      { start: { line: 44, column: 0 },
-        end: { line: 44, column: 25 } } }
-```
-
 
 ## Author
 
