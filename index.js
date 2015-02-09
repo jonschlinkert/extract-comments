@@ -13,6 +13,11 @@ var lineCount = require('line-count');
 var extend = require('mixin-deep');
 var extractComments = require('./lib/extract');
 
+/**
+ * Expose `extract`
+ */
+
+module.exports = extract;
 
 /**
  * Extract code comments from the given `string`.
@@ -30,30 +35,14 @@ var extractComments = require('./lib/extract');
  */
 
 function extract(str, opts) {
-  str = str.replace(/\r/g, '');
   opts = opts || {};
 
-  var extract = extractComments(opts);
-  var lines   = str.split(/\n/);
-  var comments  = [];
-  var comment;
-
-  while (lines.length) {
-    comment = extract(lines.shift());
-    if (comment) {
-      comments.push(comment);
-    }
-  }
-
-  return comments.reduce(function(acc, obj) {
-    obj.type = 'comment';
-    obj.comment = obj.comment.join('\n');
-    acc[obj.begin] = obj;
+  return extractComments(str, opts).reduce(function(acc, obj) {
+    // obj.type = 'comment';
+    // acc[obj.begin] = obj;
     return acc;
   }, {});
 }
-
-
 
 /**
  * Extract code comments from a file or glob of files:
@@ -82,10 +71,3 @@ extract.fromFiles = function(patterns, options) {
     }
   }, options));
 };
-
-
-/**
- * Expose `extract`
- */
-
-module.exports = extract;
