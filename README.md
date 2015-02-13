@@ -12,7 +12,7 @@ npm i extract-comments --save
 
 ## API
 
-### [extract](index.js#L32)
+### [extract](index.js#L40)
 
 Extract code comments from the given `string`.
 
@@ -22,9 +22,17 @@ Extract code comments from the given `string`.
 ```js
 var extract = require('extract-comments');
 extract('// this is a code comment');
+
+// pass a callback to process each comment
+// directly after it's parsed
+var context = require('code-context');
+extract(str, function(comment) {
+  comment.context = context(comment.after);
+  return comment;
+});
 ```
 
-### [.fromFiles](index.js#L103)
+### [.fromFiles](index.js#L111)
 
 Extract code comments from a file or glob of files. You may also pass a custom `rename` function on the options to change the key of each object returned.
 

@@ -22,6 +22,14 @@ module.exports = extract;
  * ```js
  * var extract = require('extract-comments');
  * extract('// this is a code comment');
+ *
+ * // pass a callback to process each comment
+ * // directly after it's parsed
+ * var context = require('code-context');
+ * extract(str, function(comment) {
+ *   comment.context = context(comment.after);
+ *   return comment;
+ * });
  * ```
  *
  * @param  {String} `string`
