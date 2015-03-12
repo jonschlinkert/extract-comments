@@ -1,8 +1,8 @@
 /*!
  * extract-comments <https://github.com/jonschlinkert/extract-comments>
  *
- * Copyright (c) 2014 Jon Schlinkert, contributors.
- * Licensed under the MIT license.
+ * Copyright (c) 2014-2015, Jon Schlinkert.
+ * Licensed under the MIT License.
  */
 
 'use strict';
@@ -45,7 +45,7 @@ function extract(str, fn) {
   var len = lines.length, i = 0, m;
   var comments = {};
   var isComment = false, afterCount;
-  var from, to, b, o;
+  var from, to, b, o = {};
 
   while (i < len) {
     var line = lines[i++].trim();
@@ -94,7 +94,7 @@ function extract(str, fn) {
 
 /**
  * Strip the leading `*` from a line, ensuring
- * not to eat too many whitespaces afterwards.
+ * not to eat too many whitespaces after the delimiter.
  */
 
 function stripStars(str) {
