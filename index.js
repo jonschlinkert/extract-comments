@@ -7,8 +7,7 @@
 
 'use strict';
 
-var fs = require('fs');
-var mapFiles = require('map-files');
+var isWhitespace = require('is-whitespace');
 
 /**
  * expose `extract`
@@ -38,52 +37,55 @@ module.exports = extract;
  */
 
 function extract(str, fn) {
-  var start = /^\s*\/\*\*?/;
-  var middle = /^\s*\*([^\n*]*)/;
-  var end = /^\s*\*\//;
+  var start = /^\/\*\*?/;
+  var middle = /^\*([^*][^\/])*/;
+  var end = /^\*\//;
 
-  var lines = str.split('\n');
+  var lines = str.split(/[\r\n]/);
   var len = lines.length, i = 0, m;
-  var comments = {}, o = {};
+  var comments = {};
   var isComment = false, afterCount;
+  var from, to, b, o;
 
   while (i < len) {
-    var line = lines[i++];
+    var line = lines[i++].trim();
 
     if (!isComment && start.test(line)) {
       afterCount = 0;
       isComment = true;
-      o = {};
-      o.begin = i;
-      o.comment = '';
+      o = {begin: null, end: null};
+      o.begin = b = i;
       o.after = '';
+      o.content = '';
     }
 
     if (isComment && end.test(line)) {
       o.end = i;
-      o.type = 'comment';
-      comments[o.begin] = o;
+      comments[b] = o;
       isComment = false;
     }
 
-    if (isComment && i > o.begin) {
-      m = middle.exec(line);
-      if (m) line = m[1];
-
-      o.comment += (line || '').trim() + '\n';
+    if (isComment && i > b) {
+      if (isMiddle(line)) {
+        o.content += stripStars(line) + '\n';
+      }
     }
 
     if (!isComment && o.end && i > o.end && afterCount < 2) {
+      if (!isWhitespace(line)) {
+        o.codeStart = i;
+      }
       o.after += line + '\n';
       afterCount++;
     }
 
-    if (o.begin && o.after !== '') {
+    if (b && o.after !== '') {
       o.after = o.after.trim().split('\n')[0];
+      comments[b].blocks = comments[b].content.split('\n\n');
 
       // callback
       if (typeof fn === 'function') {
-        comments[o.begin] = fn(comments[o.begin]);
+        comments[b] = fn(comments[b], b, o.end);
       }
     }
   }
@@ -91,31 +93,31 @@ function extract(str, fn) {
 };
 
 /**
- * Extract code comments from a file or glob of files.
- * You may also pass a custom `rename` function on the options
- * to change the key of each object returned.
- *
- * See [map-files] for more details and available options.
- *
- * ```js
- * var extract = require('extract-comments');
- * extract.fromFiles(['lib/*.js']);
- * ```
- *
- * @param  {String} `patterns` Glob patterns to used.
- * @param  {Object} `options` Options to pass to [globby], or [map-files].
- * @return {Object} Object of code comments.
- * @api public
+ * Strip the leading `*` from a line, ensuring
+ * not to eat too many whitespaces afterwards.
  */
 
-extract.fromFiles = function(patterns, opts) {
-  opts = opts || {};
-  opts.name = opts.rename || function(fp) {
-    return fp;
-  };
-  opts.read = opts.read || function(fp, options) {
-    var code = fs.readFileSync(fp, 'utf8');
-    return extract(code, options);
-  };
-  return mapFiles(patterns, opts);
-};
+function stripStars(str) {
+  str = str.replace(/^\s*/, '');
+  if (str.charAt(0) === '/') {
+    str = str.slice(1);
+  }
+  if (str.charAt(0) === '*') {
+    str = str.slice(1);
+  }
+  if (str.charAt(0) === ' ') {
+    str = str.slice(1);
+  }
+  return str;
+}
+
+/**
+ * Detect if the given line is in the middle
+ * of a comment.
+ */
+
+function isMiddle(str) {
+  return typeof str === 'string'
+   && str.charAt(0) === '*'
+   && str.charAt(1) !== '/';
+}
