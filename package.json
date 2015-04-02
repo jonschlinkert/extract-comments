@@ -1,7 +1,7 @@
 {
   "name": "extract-comments",
   "description": "Extract code comments from string or from a glob of files.",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "homepage": "https://github.com/jonschlinkert/extract-comments",
   "author": {
     "name": "Jon Schlinkert",
@@ -29,7 +29,7 @@
     "test": "mocha"
   },
   "dependencies": {
-    "is-whitespace": "^0.2.0"
+    "is-whitespace": "^0.3.0"
   },
   "devDependencies": {
     "code-context": "^0.5.0",

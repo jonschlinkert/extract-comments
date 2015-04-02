@@ -22,13 +22,9 @@ describe('extract comments', function () {
     extract('/**\n * this is\n *\n * a comment\n*/\nvar foo = "bar";\n').should.eql({
       '1': {
         content: 'this is\n\na comment\n',
-        blocks: [
-          'this is',
-          'a comment\n'
-        ],
         begin: 1,
         end: 5,
-        after: 'var foo = "bar";',
+        code: 'var foo = "bar";',
         codeStart: 7
       }
     });
@@ -38,10 +34,9 @@ describe('extract comments', function () {
     extract('/**\n * this /is/ a/ comment\n*/\nnext line\n').should.eql({
       '1': {
         content: 'this /is/ a/ comment\n',
-        blocks: ['this /is/ a/ comment\n'],
         begin: 1,
         end: 3,
-        after: 'next line',
+        code: 'next line',
         codeStart: 5
       }
     })
@@ -50,7 +45,7 @@ describe('extract comments', function () {
   it('should take a callback to transform comments:', function () {
     var str = read('assemble.js');
     var comments = extract(str, function (comment) {
-      comment.context = context(comment.after);
+      comment.context = context(comment.code);
       return comment;
     });
 

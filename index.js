@@ -55,7 +55,7 @@ function extract(str, fn) {
       isComment = true;
       o = {begin: null, end: null};
       o.begin = b = i;
-      o.after = '';
+      o.code = '';
       o.content = '';
     }
 
@@ -75,13 +75,12 @@ function extract(str, fn) {
       if (!isWhitespace(line)) {
         o.codeStart = i;
       }
-      o.after += line + '\n';
+      o.code += line + '\n';
       afterCount++;
     }
 
-    if (b && o.after !== '') {
-      o.after = o.after.trim().split('\n')[0];
-      comments[b].blocks = comments[b].content.split('\n\n');
+    if (b && o.code !== '') {
+      o.code = o.code.trim();
 
       // callback
       if (typeof fn === 'function') {
