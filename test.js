@@ -73,4 +73,16 @@ describe('extract comments', function () {
     var comments = extract(str);
     comments['1274'].codeStart.should.equal(1291);
   });
+
+  it('should extract Handlebars-style comments when the filename is set to abc.hbs', function() {
+    extract(read("abc.hbs"),{ filename: 'abc.hbs' }).should.eql( {
+      '1': {
+        begin: 1,
+        code: '{{title}}',
+        codeStart: 5,
+        content: 'This is a handlebars-file\n',
+        end: 3
+      }
+    });
+  })
 });
