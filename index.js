@@ -57,7 +57,7 @@ function extract(str, fn, options) {
   var afterCount;
   var b, o = {};
 
-
+  // See the `checkStart`-function for possible values.
   var currentComment = null;
 
   while (i < len) {
