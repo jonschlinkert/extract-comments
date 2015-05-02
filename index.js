@@ -120,11 +120,11 @@ function extract(str, fn, options) {
 }
 
 /**
- * Check, where the current line starts a comment.
- * Return the pattern-set marking the comment:
+ * Check, whether the current line starts a comment.
+ * Return the pattern-set marking the current comment:
  * This can be either `null`, if the current line is no comment,
- * or `{start:,middle:,end:}` for multiline-comments
- * or a string for single-line-commments
+ * or `{multi:true, pattern:{start:,middle:,end:}}` for multiline-comments
+ * or `{multi:false, pattern: 'string'}` for single-line-commments
  * @param {String} `line` the current line of code
  * @param {Object} `patterns` the comment-patterns for the current language
  */
