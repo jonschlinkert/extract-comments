@@ -25,7 +25,7 @@ describe('extract comments', function () {
         begin: 1,
         end: 5,
         code: 'var foo = "bar";',
-        codeStart: 7
+        codeStart: 6
       }
     });
   });
@@ -37,7 +37,7 @@ describe('extract comments', function () {
         begin: 1,
         end: 3,
         code: 'next line',
-        codeStart: 5
+        codeStart: 4
       }
     })
   });
