@@ -30,7 +30,8 @@
   },
   "dependencies": {
     "comment-patterns": "^0.3.0",
-    "line-counter": "^1.0.3"
+    "line-counter": "^1.0.3",
+    "quotemeta": "0.0.0"
   },
   "devDependencies": {
     "code-context": "^0.5.0",
