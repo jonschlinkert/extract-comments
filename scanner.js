@@ -56,6 +56,7 @@ function Scanner(pattern) {
       content = content.replace(indentRegex, "");
       var middle = pattern.middle[i - pattern.cg.contentStart];
       content = content.replace(middle, "");
+      // Remove empty lines from the beginning of the comment
       content = content.replace(/^[\n\r]*/, "");
 
       var commentEndIndex = match.index + match[cg.indent].length + match[cg.wholeComment].length;
