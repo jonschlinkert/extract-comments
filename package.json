@@ -29,7 +29,9 @@
     "test": "mocha"
   },
   "dependencies": {
-    "is-whitespace": "^0.3.0"
+    "comment-patterns": "^0.5.0",
+    "line-counter": "^1.0.3",
+    "quotemeta": "0.0.0"
   },
   "devDependencies": {
     "code-context": "^0.5.0",
@@ -40,12 +42,13 @@
     "code",
     "parse",
     "javascript",
+    "handlebars",
     "block",
     "context",
     "comments",
     "comment",
     "extract",
-    "esprima",
+    "regex",
     "glob"
   ],
   "verb": {
