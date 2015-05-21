@@ -17,7 +17,7 @@ function read(fp) {
   return fs.readFileSync(__dirname + '/fixtures/' + fp, 'utf8');
 }
 
-describe('extract comments', function () {
+describe('extract comments from javascript', function () {
   it('should extract comments from a string.', function () {
     extract('/**\n * this is\n *\n * a comment\n*/\nvar foo = "bar";\n').should.eql({
       '1': {
@@ -73,4 +73,43 @@ describe('extract comments', function () {
     var comments = extract(str);
     comments['1274'].codeStart.should.equal(1291);
   });
+});
+
+
+describe("extract comments from Handlebars", function () {
+  var str = read('body.hbs');
+  var comments = extract(str, {
+    filename: 'body.hbs'
+  });
+
+  it('a simple comment', function () {
+    comments['1'].should.eql({
+      begin: 1,
+      end: 3,
+      codeStart: 4,
+      content: 'A comment without indent.\n',
+      code: '{{>some-partial}}'
+    });
+  });
+
+  it('a comment with indent content. Indents should be removed such that the smallest indent is 0', function () {
+    comments['6'].should.eql({
+      begin: 6,
+      end: 10,
+      codeStart: 11,
+      content: 'A comment with indent ...\n\n    ... and an other larger indent\n',
+      code: '{{#if definitions}}'
+    });
+  });
+
+  it('a comment with indent content and delimiters', function () {
+    comments['13'].should.eql({
+        begin: 13,
+        end: 15,
+        codeStart: 16,
+        content: 'Wholly indented comment\n    ',
+        code: '    {{>json-schema/definitions}}'
+      }
+    );
+  })
 });

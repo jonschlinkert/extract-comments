@@ -27,14 +27,18 @@ function extract(str, fn, options) {
   var codeEnd = null;
   new Scanner(regexp)
     .on("comment", function (comment) {
+      // Temporary save the comment
       lastComment = comment;
     })
     .on("codeStart", function (codeStartIndex) {
+      // Save the index of the first line of code after the comment
       codeStart = codeStartIndex;
     })
     .on("codeEnd", function (codeEndIndex) {
       codeEnd = codeEndIndex;
       if (lastComment) {
+        // Finalize the last comment: Retrieve the first line of code.
+        // At most up to the next comment
         nextLineRegex.lastIndex = codeStart;
         var match = nextLineRegex.exec(str);
         if (match[0].length > codeEnd - codeStart) {
@@ -51,6 +55,4 @@ function extract(str, fn, options) {
 }
 
 module.exports = extract;
-//var contents = fs.readFileSync("../extract-comments/fixtures/test.coffee", "utf-8");
-//console.log(extract(contents,{ filename: "test.coffee" }));
 
