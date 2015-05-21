@@ -1,3 +1,12 @@
+/*!
+ * extract-comments <https://github.com/jonschlinkert/extract-comments>
+ *
+ * Copyright (c) 2014-2015, Jon Schlinkert.
+ * Licensed under the MIT License.
+ */
+
+'use strict';
+
 var cp = require("comment-patterns");
 var Scanner = require("./scanner.js");
 var nextLineRegex = /.*$/mg;
