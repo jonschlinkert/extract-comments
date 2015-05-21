@@ -1,3 +1,10 @@
+/*!
+ * extract-comments <https://github.com/jonschlinkert/extract-comments>
+ *
+ * Copyright (c) 2014-2015, Nils Knappmeier.
+ * Licensed under the MIT License.
+ */
+
 'use strict';
 
 var q = require("quotemeta");
