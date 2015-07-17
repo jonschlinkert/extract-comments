@@ -2,7 +2,7 @@
 
 > Extract code comments from string or from a glob of files.
 
-**Heads up!** As of v0.7.0 this no longer has a `.fromFile()` method to read from the file system. See [extracting from files].
+**Heads up!** As of v0.7.0 this no longer has a `.fromFile()` method to read from the file system. See [extracting from files](#extracting-from-files).
 
 Can be used with [code-context](https://github.com/jonschlinkert/code-context) to match comments up with related code.
 
