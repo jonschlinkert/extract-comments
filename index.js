@@ -1,122 +1,227 @@
-/*!
- * extract-comments <https://github.com/jonschlinkert/extract-comments>
- *
- * Copyright (c) 2014-2015, Jon Schlinkert.
- * Licensed under the MIT License.
- */
-
 'use strict';
 
-var isWhitespace = require('is-whitespace');
+var extend = require('extend-shallow');
+var Block = require('./lib/block');
+var Line = require('./lib/line');
+var utils = require('./lib/utils');
 
 /**
- * expose `extract`
+ * Get the first block comment from the given string
  */
 
-module.exports = extract;
+function first(str) {
+  str = utils.normalize(str);
+  if (!/^\/\*{1,2}!?/.test(str)) {
+    return null;
+  }
+  var i = str.indexOf('*/');
+  if (i === -1) return null;
+  if (/['"\w]/.test(str[i + 2])) {
+    return null;
+  }
+  return str.slice(0, i + 2);
+}
 
 /**
- * Extract code comments from the given `string`.
- *
- * ```js
- * var extract = require('extract-comments');
- * extract('// this is a code comment');
- *
- * // pass a callback to process each comment
- * // directly after it's parsed
- * var context = require('code-context');
- * extract(str, function(comment) {
- *   comment.context = context(comment.after);
- *   return comment;
- * });
- * ```
- *
- * @param  {String} `string`
- * @return {Object} Object of code comments.
- * @api public
+ * Get block and line comments from the given string
  */
 
-function extract(str, fn) {
-  var start = /^\/\*\*?/;
-  var middle = /^\*([^*][^\/])*/;
-  var end = /^\*\//;
+function comments(str, options, fn) {
+  if (typeof options === 'function') {
+    fn = options;
+    options = {};
+  }
 
-  var lines = str.split(/[\r\n]/);
-  var len = lines.length, i = 0, m;
-  var comments = {};
-  var isComment = false, afterCount;
-  var from, to, b, o = {};
+  if (typeof fn !== 'function') {
+    fn = utils.identity;
+  }
 
-  while (i < len) {
-    var line = lines[i++].trim();
+  var opts = extend({}, options);
+  str = utils.normalize(str);
+  var arr = [];
 
-    if (!isComment && start.test(line)) {
-      afterCount = 0;
-      isComment = true;
-      o = {begin: null, end: null};
-      o.begin = b = i;
-      o.code = '';
-      o.content = '';
-    }
+  var start = findStart('/*');
+  var end = findEnd('*/');
+  var len = str.length;
+  var startIdx = start(str, 0);
+  var endIdx = 0, prevIdx;
 
-    if (isComment && end.test(line)) {
-      o.end = i;
-      comments[b] = o;
-      isComment = false;
-    }
-
-    if (isComment && i > b) {
-      if (isMiddle(line)) {
-        o.content += stripStars(line) + '\n';
+  while (startIdx !== -1 && endIdx < len) {
+    if (typeof prevIdx === 'number' && opts.line !== false) {
+      if (typeof opts.combine === 'undefined') {
+        opts.combine = true;
       }
+      var nonblock = str.slice(prevIdx, startIdx);
+      var lineComments = line(nonblock, opts, fn);
+      arr = arr.concat(lineComments);
     }
 
-    if (!isComment && o.end && i > o.end && afterCount < 2) {
-      if (!isWhitespace(line)) {
-        o.codeStart = i;
+    endIdx = end(str, startIdx, len);
+    if (endIdx === -1) break;
+
+    var comment = fn(new Block(str, startIdx, endIdx));
+    arr.push(comment);
+    if (opts.first && arr.length === 1) {
+      return arr;
+    }
+
+    prevIdx = endIdx + 2;
+    startIdx = start(str, prevIdx);
+  }
+
+  if (!arr.length) {
+    return line(str, opts, fn);
+  }
+  return arr;
+}
+/**
+ * Get block comments from the given string
+ */
+
+function block(str, fn) {
+  return comments(str, {line: false}, fn);
+}
+
+/**
+ * Get line comments from the given string
+ */
+
+function line(str, options, fn) {
+  str = utils.normalize(str);
+  var comments = [];
+
+  if (typeof options === 'function') {
+    fn = options;
+    options = {};
+  }
+
+  if (typeof fn !== 'function') {
+    fn = utils.identity;
+  }
+
+  var opts = extend({}, options);
+  var combine = opts.combine === true;
+  var start = findStart('//');
+  var end = findEnd('\n');
+  var len = str.length;
+  var startIdx = start(str, 0);
+  var endIdx = 0, prev;
+  var stacked = null;
+
+  while (startIdx !== -1 && endIdx < len) {
+    endIdx = end(str, startIdx, len);
+    if (endIdx === -1) endIdx = len;
+
+    var comment = new Line(str, startIdx, endIdx);
+    startIdx = start(str, endIdx);
+
+    if (prev && combine && isStacked(comment, prev, opts)) {
+      var curr = comment.loc.end.line;
+      var last = comments[comments.length - 1];
+      prev = merge(str, comment, prev);
+      if (last && prev.start === last.start) {
+        comments.pop();
       }
-      o.code += line + '\n';
-      afterCount++;
+      prev.loc.start.line = curr;
+      stacked = prev;
+      continue;
     }
 
-    if (b && o.code !== '') {
-      o.code = o.code.trim();
-
-      // callback
-      if (typeof fn === 'function') {
-        comments[b] = fn(comments[b], b, o.end);
-      }
+    if (stacked) {
+      comments.push(fn(stacked));
+      stacked = null;
     }
+
+    comment = fn(comment);
+    prev = comment;
+    comments.push(comment);
+  }
+
+  if (stacked) {
+    comments.push(fn(stacked));
   }
   return comments;
-};
-
-/**
- * Strip the leading `*` from a line, ensuring
- * not to eat too many whitespaces after the delimiter.
- */
-
-function stripStars(str) {
-  str = str.replace(/^\s*/, '');
-  if (str.charAt(0) === '/') {
-    str = str.slice(1);
-  }
-  if (str.charAt(0) === '*') {
-    str = str.slice(1);
-  }
-  if (str.charAt(0) === ' ') {
-    str = str.slice(1);
-  }
-  return str;
 }
 
 /**
- * Detect if the given line is in the middle
- * of a comment.
+ * Returns a function for getting the index the
+ * given "end" character(s)
+ *
+ * @param {String} endChars
  */
 
-function isMiddle(str) {
-  return typeof str === 'string'
-   && str.charAt(0) === '*'
-   && str.charAt(1) !== '/';
+function findStart(startChars) {
+  return function(str, idx) {
+    var i = str.indexOf(startChars, idx);
+    var prev = str[i - 1];
+
+    if (prev && /['"\w]/.test(prev)) {
+      i = str.indexOf(startChars, i + 1);
+      prev = str[i - 1];
+    }
+    return i;
+  };
 }
+
+/**
+ * Returns a function for getting the index the
+ * given "end" character(s)
+ *
+ * @param {String} endChars
+ */
+
+function findEnd(endChars) {
+  return function(str, start) {
+    var idx = str.indexOf(endChars, start + 2);
+    var ch = str[idx + 2];
+    while (ch && /['"]/.test(ch)) {
+      idx = str.indexOf(endChars, idx + 2);
+      ch = str[idx + 2];
+    }
+    return idx;
+  };
+}
+
+/**
+ * Returns true if the previous line was a line comment.
+ */
+
+function isStacked(comment, prev) {
+  var prevLine = prev.loc.start.line;
+  var line = comment.loc.end.line;
+  return line === prevLine + 1;
+}
+
+/**
+ * Merge line comments
+ */
+
+function merge(str, curr, prev) {
+  var i = prev.loc.start.pos;
+  var end = curr.loc.end.pos;
+  return new Line(str, i, end);
+}
+
+/**
+ * Expose `extract` module
+ */
+
+module.exports = comments;
+
+/**
+ * Expose `extract.first` method
+ */
+
+module.exports.first = first;
+
+/**
+ * Expose `extract.block` method
+ */
+
+module.exports.block = block;
+
+/**
+ * Expose `extract.line` method
+ */
+
+module.exports.line = line;
