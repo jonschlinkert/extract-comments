@@ -1312,6 +1312,9 @@ for (var key in middleware) {
   Object.defineProperty(Assemble, key, Object.getOwnPropertyDescriptor(middleware, key));
 }
 
+// foo
+// bar
+// baz
 
 /**
  * Initialize Assemble.
@@ -1345,6 +1348,7 @@ Assemble.prototype.foo = function(options) {
 // multiline
 // line
 // comment
+var str = '// foo bar'
 
 /**
  * Expose `Assemble`
