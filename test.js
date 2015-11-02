@@ -13,7 +13,7 @@ function read(fp) {
 
 describe('block comments', function () {
   it('should extract a block comment', function () {
-    var str = '/**\n * this is\n *\n * a comment\n*/\nvar foo = "bar";\n';
+    var str = '/**\n * this is\n *\n * a comment\n*/\n\nvar foo = "bar";\n';
     var actual = extract(str);
     assert(actual[0].raw === '/**\n * this is\n *\n * a comment\n*/');
   });
@@ -54,11 +54,34 @@ describe('block comments', function () {
     var actual = extract(str);
     assert(actual[0].loc.end.pos === 33);
   });
+});
 
+describe('code', function () {
   it('should get the code line that follows the comment', function () {
-    var str = '/**\n * this is\n *\n * a comment\n*/\nvar foo = "bar";\n';
+    var str = '/**\n * this is\n *\n * a comment\n*/\n\n\nvar foo = "bar";\n';
     var actual = extract(str);
     assert(actual[0].code.value === 'var foo = "bar";');
+  });
+
+  it('should get the code starting and ending indices', function () {
+    var str = '/**\n * this is\n *\n * a comment\n*/\n\n\nvar foo = "bar";\n';
+    var actual = extract(str);
+    var code = actual[0].code;
+    var start = code.loc.start.pos;
+    var end = code.loc.end.pos;
+    assert(start === 36);
+    assert(end === 52);
+    assert(str.slice(start, end) === 'var foo = "bar";');
+  });
+
+  it('should get the code line number', function () {
+    var str = '/**\n * this is\n *\n * a comment\n*/\n\n\nvar foo = "bar";\n';
+    var actual = extract(str);
+    var code = actual[0].code;
+    var start = code.loc.start.line;
+    var lines = str.split('\n');
+    var line = lines.indexOf('var foo = "bar";');
+    assert(line === start);
   });
 });
 

@@ -10,7 +10,6 @@
   },
   "license": "MIT",
   "files": [
-    "backup.js",
     "index.js"
   ],
   "main": "index.js",
