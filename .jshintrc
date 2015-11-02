@@ -1,7 +1,7 @@
 {
   "asi": false,
   "boss": true,
-  "curly": true,
+  "curly": false,
   "eqeqeq": true,
   "eqnull": true,
   "esnext": true,
@@ -14,5 +14,6 @@
   "node": true,
   "sub": true,
   "undef": true,
-  "unused": true
+  "unused": true,
+  "laxbreak": true
 }
