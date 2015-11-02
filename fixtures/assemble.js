@@ -1339,6 +1339,13 @@ Assemble.prototype.foo = function(options) {
   this.option(opts);
 };
 
+// this
+// is
+// a
+// multiline
+// line
+// comment
+
 /**
  * Expose `Assemble`
  */
