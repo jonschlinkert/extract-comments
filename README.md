@@ -2,9 +2,7 @@
 
 > Extract code comments from string or from a glob of files.
 
-**Heads up!** As of v0.7.0 this no longer has a `.fromFile()` method to read from the file system. See [extracting from files](#extracting-from-files).
-
-Can be used with [code-context](https://github.com/jonschlinkert/code-context) to match comments up with related code.
+## Install
 
 Install with [npm](https://www.npmjs.com/)
 
@@ -24,84 +22,20 @@ extract(string);
 **Example**
 
 ```js
-var str = '/**\n * this is\n *\n * a comment\n*/\nvar foo = "bar";\n';
-extract(str);
-```
+var str = '/**\n * this is\n *\n * a comment\n*/\n\n\nvar foo = "bar";\n';
+var comments = extract(str);
+console.log(comments);
 
-Results in:
-
-```js
-// key is the starting line number
-{ '1':
-   { begin: 1,
-     end: 5,
-     // line number of the code after the comment
-     codeStart: 7 } }
-     content: 'this is\n\na comment\n',
-     // sames as content, but split into blocks at double newlines
-     blocks: [
-       'this is',
-       'a comment\n'
-     ],
-     // first line of code after the comment
-     after: 'var foo = "bar";',
-```
-
-_(The reason the key is the starting line number is that it's easy to use this format with templates)_
-
-**Customize output**
-
-```js
-// use code-context to parse the first line of code following
-// the comment
-var context = require('code-context');
-
-// pass a function to modify the returned object
-// and avoid looping more than once
-var comments = extract(str, function(comment) {
-  comment.context = context(comment.after);
-  return comment;
-});
-```
-
-Results in:
-
-```js
-{ begin: 1,
-  content: 'this is\n\na comment\n',
-  after: 'var foo = "bar";',
-  end: 5,
-  codeStart: 7,
-  blocks: [ 'this is', 'a comment\n' ],
-  context:
-   [ { begin: 1,
-       type: 'declaration',
-       name: 'foo',
-       value: '"bar"',
-       string: 'foo',
-       original: 'var foo = "bar";' } ] }
-```
-
-## Extracting from files
-
-Prior to v0.7.0, there was a method to extract code comments from files. Here is the equivalent code to accomplish the same thing:
-
-```js
-var fs = require('fs');
-var extract = require('extract-comments');
-var mapFiles = require('map-files');
-
-function extractComments(patterns, opts) {
-  opts = opts || {};
-  opts.name = opts.rename || function(fp) {
-    return fp;
-  };
-  opts.read = opts.read || function(fp, options) {
-    var code = fs.readFileSync(fp, 'utf8');
-    return extract(code, options);
-  };
-  return mapFiles(patterns, opts);
-}
+[{
+  type: 'block',
+  raw: '/**\n * this is\n *\n * a comment\n*/',
+  value: 'this is\na comment',
+  lines: [ 'this is', 'a comment' ],
+  loc: { start: { line: 1, pos: 0 }, end: { line: 5, pos: 33 } },
+  code:
+   { line: 7,
+     loc: { start: { line: 7, pos: 36 }, end: { line: 7, pos: 52 } },
+     value: 'var foo = "bar";' }
 ```
 
 ## Related
