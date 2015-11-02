@@ -1,7 +1,7 @@
 {
   "name": "extract-comments",
   "description": "Extract code comments from string or from a glob of files.",
-  "version": "0.8.2",
+  "version": "0.8.3",
   "homepage": "https://github.com/jonschlinkert/extract-comments",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
   "repository": "jonschlinkert/extract-comments",
@@ -24,7 +24,10 @@
     "cr": "^0.1.0",
     "export-files": "^2.1.0",
     "extend-shallow": "^2.0.1",
-    "strip-bom-string": "^0.1.2"
+    "quoted-string-regex": "^0.1.1",
+    "repeat-string": "^1.5.2",
+    "strip-bom-string": "^0.1.2",
+    "to-regex-range": "^0.1.1"
   },
   "devDependencies": {
     "code-context": "^0.5.0",
