@@ -18,16 +18,21 @@ function read(fp) {
 }
 
 describe('extract comments', function () {
-  it('should extract comments from a string.', function () {
-    extract('/**\n * this is\n *\n * a comment\n*/\nvar foo = "bar";\n').should.eql({
-      '1': {
-        content: 'this is\n\na comment\n',
-        begin: 1,
-        end: 5,
-        code: 'var foo = "bar";',
-        codeStart: 7
-      }
-    });
+  it.only('should extract comments from a string.', function () {
+    // var str = ' /**\n * this is\n *\n * a comment\n*/\nvar foo = "bar";\n';
+    var str = read('assemble.js');
+    var actual = extract(str);
+
+    console.log(actual[actual.length - 5])
+    // actual.should.eql({
+    //   '1': {
+    //     value: 'this is\n\na comment\n',
+    //     start: 1,
+    //     end: 5,
+    //     code: 'var foo = "bar";',
+    //     codeStart: 7
+    //   }
+    // });
   });
 
   it('should work with comments that have slashes.', function () {

@@ -1,122 +1,92 @@
-/*!
- * extract-comments <https://github.com/jonschlinkert/extract-comments>
- *
- * Copyright (c) 2014-2015, Jon Schlinkert.
- * Licensed under the MIT License.
- */
-
 'use strict';
 
-var isWhitespace = require('is-whitespace');
+var cr = require('cr');
+var bom = require('strip-bom-string');
+var BlockComment = require('./lib/block');
+
+function normalize(str) {
+  return cr(bom(str));
+}
+
+function extractLine(str) {
+  str = normalize(str);
+  var len = str.length;
+  var end = 0, i = 0, n = 0;
+  var comments = [];
+
+  do {
+    i = str.indexOf('//', n);
+    var prev = str[i - 1];
+
+    if (prev && /['"\w]/.test(prev)) {
+      i = str.indexOf('//', i + 1);
+      prev = str[i - 1];
+    }
+
+    if (i === -1) break;
+    var end = str.indexOf('\n', i + 2);
+    if (end === -1) end = len;
+
+    var comment = str.slice(i, end);
+    comments.push(new BlockComment(comment, i, end, 'line'));
+    n = end + 2;
+
+  } while (i !== -1 && end < len);
+  return comments;
+}
+
+function extract(str) {
+  str = normalize(str);
+
+  var len = str.length;
+  var end = 0, i = 0, n = 0;
+  var comments = [];
+
+  do {
+    i = startIndex(str, n);
+    if (i === -1) break;
+
+    end = str.indexOf('*/', i + 2);
+    end = endIndex(str, end, len);
+
+    var comment = new BlockComment(str, i, end);
+    comments.push(comment);
+    n = end + 2;
+
+  } while (i !== -1 && end < len);
+
+  return comments;
+}
+
+function startIndex(str, idx) {
+  var i = str.indexOf('/*', idx);
+  var prev = str[i - 1];
+
+  if (prev && /['"\w]/.test(prev)) {
+    i = str.indexOf('/*', i + 1);
+    prev = str[i - 1];
+  }
+  return i;
+}
+
+function endIndex(str, idx, len) {
+  var i = str[idx + 2];
+  while (i && /['"]/.test(i)) {
+    idx = str.indexOf('*/', idx + 2);
+    i = str[idx + 2];
+  }
+  if (idx === -1) idx = len;
+  return idx;
+}
 
 /**
- * expose `extract`
+ * Expose `extract` module
  */
 
 module.exports = extract;
 
 /**
- * Extract code comments from the given `string`.
- *
- * ```js
- * var extract = require('extract-comments');
- * extract('// this is a code comment');
- *
- * // pass a callback to process each comment
- * // directly after it's parsed
- * var context = require('code-context');
- * extract(str, function(comment) {
- *   comment.context = context(comment.after);
- *   return comment;
- * });
- * ```
- *
- * @param  {String} `string`
- * @return {Object} Object of code comments.
- * @api public
+ * Expose `extract.line` method
  */
 
-function extract(str, fn) {
-  var start = /^\/\*\*?/;
-  var middle = /^\*([^*][^\/])*/;
-  var end = /^\*\//;
-
-  var lines = str.split(/[\r\n]/);
-  var len = lines.length, i = 0, m;
-  var comments = {};
-  var isComment = false, afterCount;
-  var from, to, b, o = {};
-
-  while (i < len) {
-    var line = lines[i++].trim();
-
-    if (!isComment && start.test(line)) {
-      afterCount = 0;
-      isComment = true;
-      o = {begin: null, end: null};
-      o.begin = b = i;
-      o.code = '';
-      o.content = '';
-    }
-
-    if (isComment && end.test(line)) {
-      o.end = i;
-      comments[b] = o;
-      isComment = false;
-    }
-
-    if (isComment && i > b) {
-      if (isMiddle(line)) {
-        o.content += stripStars(line) + '\n';
-      }
-    }
-
-    if (!isComment && o.end && i > o.end && afterCount < 2) {
-      if (!isWhitespace(line)) {
-        o.codeStart = i;
-      }
-      o.code += line + '\n';
-      afterCount++;
-    }
-
-    if (b && o.code !== '') {
-      o.code = o.code.trim();
-
-      // callback
-      if (typeof fn === 'function') {
-        comments[b] = fn(comments[b], b, o.end);
-      }
-    }
-  }
-  return comments;
-};
-
-/**
- * Strip the leading `*` from a line, ensuring
- * not to eat too many whitespaces after the delimiter.
- */
-
-function stripStars(str) {
-  str = str.replace(/^\s*/, '');
-  if (str.charAt(0) === '/') {
-    str = str.slice(1);
-  }
-  if (str.charAt(0) === '*') {
-    str = str.slice(1);
-  }
-  if (str.charAt(0) === ' ') {
-    str = str.slice(1);
-  }
-  return str;
-}
-
-/**
- * Detect if the given line is in the middle
- * of a comment.
- */
-
-function isMiddle(str) {
-  return typeof str === 'string'
-   && str.charAt(0) === '*'
-   && str.charAt(1) !== '/';
-}
+module.exports.line = extractLine;
