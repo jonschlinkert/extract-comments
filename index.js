@@ -5,11 +5,16 @@ var Block = require('./lib/block');
 var Line = require('./lib/line');
 var utils = require('./lib/utils');
 
+
 /**
  * Get the first block comment from the given string
  */
 
 function first(str) {
+  if (typeof str !== 'string') {
+    throw new TypeError('expected a string');
+  }
+
   str = utils.normalize(str);
   if (!/^\/\*{1,2}!?/.test(str)) {
     return null;
@@ -27,6 +32,10 @@ function first(str) {
  */
 
 function comments(str, options, fn) {
+  if (typeof str !== 'string') {
+    throw new TypeError('expected a string');
+  }
+
   if (typeof options === 'function') {
     fn = options;
     options = {};
@@ -36,6 +45,7 @@ function comments(str, options, fn) {
     fn = utils.identity;
   }
 
+  var ranges = utils.getRanges(str);
   var opts = extend({}, options);
   str = utils.normalize(str);
   var arr = [];
@@ -47,6 +57,13 @@ function comments(str, options, fn) {
   var endIdx = 0, prevIdx;
 
   while (startIdx !== -1 && endIdx < len) {
+    var isQuoted = utils.isQuotedString(startIdx, ranges);
+    if (isQuoted) {
+      endIdx = end(str, startIdx, len);
+      if (endIdx === -1) endIdx = len;
+      continue;
+    }
+
     if (typeof prevIdx === 'number' && opts.line !== false) {
       if (typeof opts.combine === 'undefined') {
         opts.combine = true;
@@ -79,6 +96,9 @@ function comments(str, options, fn) {
  */
 
 function block(str, fn) {
+  if (typeof str !== 'string') {
+    throw new TypeError('expected a string');
+  }
   return comments(str, {line: false}, fn);
 }
 
@@ -87,6 +107,10 @@ function block(str, fn) {
  */
 
 function line(str, options, fn) {
+  if (typeof str !== 'string') {
+    throw new TypeError('expected a string');
+  }
+
   str = utils.normalize(str);
   var comments = [];
 
@@ -99,6 +123,7 @@ function line(str, options, fn) {
     fn = utils.identity;
   }
 
+  var ranges = utils.getRanges(str);
   var opts = extend({}, options);
   var combine = opts.combine === true;
   var start = findStart('//');
@@ -111,6 +136,12 @@ function line(str, options, fn) {
   while (startIdx !== -1 && endIdx < len) {
     endIdx = end(str, startIdx, len);
     if (endIdx === -1) endIdx = len;
+
+    var isQuoted = utils.isQuotedString(startIdx, ranges);
+    if (isQuoted) {
+      startIdx = start(str, endIdx);
+      continue;
+    }
 
     var comment = new Line(str, startIdx, endIdx);
     startIdx = start(str, endIdx);
