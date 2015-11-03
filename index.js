@@ -57,10 +57,12 @@ function comments(str, options, fn) {
   var endIdx = 0, prevIdx;
 
   while (startIdx !== -1 && endIdx < len) {
-    var isQuoted = utils.isQuotedString(startIdx, ranges);
-    if (isQuoted) {
-      endIdx = end(str, startIdx, len);
-      if (endIdx === -1) endIdx = len;
+    endIdx = end(str, startIdx, len);
+    if (endIdx === -1) break;
+
+    var quoted = utils.isQuotedString(startIdx, ranges);
+    if (quoted) {
+      startIdx = endIdx;
       continue;
     }
 
@@ -73,9 +75,6 @@ function comments(str, options, fn) {
       arr = arr.concat(lineComments);
     }
 
-    endIdx = end(str, startIdx, len);
-    if (endIdx === -1) break;
-
     var comment = fn(new Block(str, startIdx, endIdx));
     arr.push(comment);
     if (opts.first && arr.length === 1) {
@@ -84,6 +83,7 @@ function comments(str, options, fn) {
 
     prevIdx = endIdx + 2;
     startIdx = start(str, prevIdx);
+    if (startIdx >= len) break;
   }
 
   if (!arr.length) {
@@ -134,17 +134,23 @@ function line(str, options, fn) {
   var stacked = null;
 
   while (startIdx !== -1 && endIdx < len) {
-    endIdx = end(str, startIdx, len);
-    if (endIdx === -1) endIdx = len;
-
-    var isQuoted = utils.isQuotedString(startIdx, ranges);
-    if (isQuoted) {
-      startIdx = start(str, endIdx);
-      continue;
+    if (startIdx >= len || endIdx >= len) {
+      break;
     }
 
+    endIdx = end(str, startIdx, len);
+    if (endIdx === -1) {
+      endIdx = len;
+    }
+
+    var quoted = utils.isQuotedString(startIdx, ranges);
     var comment = new Line(str, startIdx, endIdx);
+
     startIdx = start(str, endIdx);
+    if (quoted) {
+      startIdx = endIdx + 1;
+      continue;
+    }
 
     if (prev && combine && isStacked(comment, prev, opts)) {
       var curr = comment.loc.end.line;
