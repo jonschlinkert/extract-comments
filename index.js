@@ -7,27 +7,6 @@ var utils = require('./lib/utils');
 var cache = {};
 
 /**
- * Get the first block comment from the given string
- */
-
-function first(str) {
-  if (typeof str !== 'string') {
-    throw new TypeError('expected a string');
-  }
-
-  str = utils.normalize(str);
-  if (!/^\/\*{1,2}!?/.test(str)) {
-    return null;
-  }
-  var i = str.indexOf('*/');
-  if (i === -1) return null;
-  if (/['"\w]/.test(str[i + 2])) {
-    return null;
-  }
-  return str.slice(0, i + 2);
-}
-
-/**
  * Get block and line comments from the given string
  */
 
@@ -168,6 +147,27 @@ function line(str, options, fn) {
     comments.push(fn(stacked));
   }
   return comments;
+}
+
+/**
+ * Get the first block comment from the given string
+ */
+
+function first(str) {
+  if (typeof str !== 'string') {
+    throw new TypeError('expected a string');
+  }
+
+  str = utils.normalize(str);
+  if (!/^\/\*{1,2}!?/.test(str)) {
+    return null;
+  }
+  var i = str.indexOf('*/');
+  if (i === -1) return null;
+  if (/['"\w]/.test(str[i + 2])) {
+    return null;
+  }
+  return str.slice(0, i + 2);
 }
 
 /**
