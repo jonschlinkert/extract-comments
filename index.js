@@ -7,10 +7,26 @@ var utils = require('./lib/utils');
 var cache = {};
 
 /**
+ * Get block comments from the given string
+ */
+
+function comments(str, fn) {
+  if (typeof str !== 'string') {
+    throw new TypeError('expected a string');
+  }
+
+  var block = blockComments(str, fn);
+  var line = lineComments(str, fn);
+  return block.concat(line).sort(function(a, b) {
+    return a.loc.start.pos - b.loc.start.pos;
+  });
+}
+
+/**
  * Get block and line comments from the given string
  */
 
-function comments(str, options, fn) {
+function blockComments(str, options, fn) {
   if (typeof str !== 'string') {
     throw new TypeError('expected a string');
   }
@@ -24,29 +40,21 @@ function comments(str, options, fn) {
     fn = utils.identity;
   }
 
-  var ranges = utils.getRanges(str);
   var opts = extend({}, options);
   str = utils.normalize(str);
-  str = utils.unquote(str, cache);
+  str = utils.escapeQuoted(str, cache);
 
   var arr = [];
   var start = findStart('/*');
   var end = findEnd('*/');
   var len = str.length;
   var startIdx = start(str, 0);
-  var endIdx = 0, prevIdx;
+  var endIdx = 0;
 
-  while (startIdx !== -1 && endIdx < len) {
+  while (startIdx !== -1) {
     endIdx = end(str, startIdx, len);
-    if (endIdx === -1) break;
-
-    if (typeof prevIdx === 'number' && opts.line !== false) {
-      if (typeof opts.combine === 'undefined') {
-        opts.combine = true;
-      }
-      var nonblock = str.slice(prevIdx, startIdx);
-      var lineComments = line(nonblock, opts, fn);
-      arr = arr.concat(lineComments);
+    if (endIdx === -1) {
+      endIdx = len;
     }
 
     var comment = fn(new Block(str, startIdx, endIdx, cache));
@@ -55,38 +63,25 @@ function comments(str, options, fn) {
       return arr;
     }
 
-    prevIdx = endIdx + 2;
-    startIdx = start(str, prevIdx);
-    if (startIdx >= len) break;
-  }
-
-  if (!arr.length) {
-    return line(str, opts, fn);
+    if (comment.code.value) {
+      endIdx += comment.code.value.length;
+    }
+    startIdx = start(str, endIdx + 2);
   }
   return arr;
-}
-/**
- * Get block comments from the given string
- */
-
-function block(str, fn) {
-  if (typeof str !== 'string') {
-    throw new TypeError('expected a string');
-  }
-  return comments(str, {line: false}, fn);
 }
 
 /**
  * Get line comments from the given string
  */
 
-function line(str, options, fn) {
+function lineComments(str, options, fn) {
   if (typeof str !== 'string') {
     throw new TypeError('expected a string');
   }
 
   str = utils.normalize(str);
-  str = utils.unquote(str, cache);
+  str = utils.escapeQuoted(str, cache);
   var comments = [];
 
   if (typeof options === 'function') {
@@ -98,7 +93,6 @@ function line(str, options, fn) {
     fn = utils.identity;
   }
 
-  var ranges = utils.getRanges(str);
   var opts = extend({}, options);
   var combine = opts.combine === true;
   var start = findStart('//');
@@ -108,13 +102,13 @@ function line(str, options, fn) {
   var endIdx = 0, prev;
   var stacked = null;
 
-  while (startIdx !== -1 && endIdx < len) {
-    if (startIdx >= len || endIdx > len) {
+  while (startIdx !== -1) {
+    if (startIdx >= len) {
       break;
     }
 
     endIdx = end(str, startIdx, len);
-    if (endIdx === -1) {
+    if (endIdx === -1 || endIdx > len) {
       endIdx = len;
     }
 
@@ -181,7 +175,6 @@ function findStart(startChars) {
   return function(str, idx) {
     var i = str.indexOf(startChars, idx);
     var prev = str[i - 1];
-
     if (prev && /['"\w]/.test(prev)) {
       i = str.indexOf(startChars, i + 1);
       prev = str[i - 1];
@@ -245,10 +238,10 @@ module.exports.first = first;
  * Expose `extract.block` method
  */
 
-module.exports.block = block;
+module.exports.block = blockComments;
 
 /**
  * Expose `extract.line` method
  */
 
-module.exports.line = line;
+module.exports.line = lineComments;

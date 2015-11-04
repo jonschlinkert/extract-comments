@@ -1,5 +1,5 @@
 /*!
- * strip this multiline
+ * this is a multiline
  * block comment
  */
 'use strict';
@@ -37,7 +37,7 @@ var path = '/path/to/*/something/that/not/be/stripped.js';
 var globstar = '/path/to/globstar/not/be/stripped/**/*.js';
 var globstar = '/path/to//globstar//not/be/stripped/**/*/.js';
 
-'use strict';
+/* inline block comment */
 
 process.stdout.write('string literals: ');
 console.dir({
@@ -50,3 +50,5 @@ process.stdout.write('RegExp literals: ');
 console.dir({
   regexp0: /I'm the easiest in Chomsky hierarchy!/,
 });
+
+// eos
