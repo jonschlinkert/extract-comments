@@ -4,7 +4,7 @@ var extend = require('extend-shallow');
 var Block = require('./lib/block');
 var Line = require('./lib/line');
 var utils = require('./lib/utils');
-
+var cache = {};
 
 /**
  * Get the first block comment from the given string
@@ -48,8 +48,9 @@ function comments(str, options, fn) {
   var ranges = utils.getRanges(str);
   var opts = extend({}, options);
   str = utils.normalize(str);
-  var arr = [];
+  str = utils.unquote(str, cache);
 
+  var arr = [];
   var start = findStart('/*');
   var end = findEnd('*/');
   var len = str.length;
@@ -60,12 +61,6 @@ function comments(str, options, fn) {
     endIdx = end(str, startIdx, len);
     if (endIdx === -1) break;
 
-    var quoted = utils.isQuotedString(startIdx, ranges);
-    if (quoted) {
-      startIdx = endIdx;
-      continue;
-    }
-
     if (typeof prevIdx === 'number' && opts.line !== false) {
       if (typeof opts.combine === 'undefined') {
         opts.combine = true;
@@ -75,7 +70,7 @@ function comments(str, options, fn) {
       arr = arr.concat(lineComments);
     }
 
-    var comment = fn(new Block(str, startIdx, endIdx));
+    var comment = fn(new Block(str, startIdx, endIdx, cache));
     arr.push(comment);
     if (opts.first && arr.length === 1) {
       return arr;
@@ -112,6 +107,7 @@ function line(str, options, fn) {
   }
 
   str = utils.normalize(str);
+  str = utils.unquote(str, cache);
   var comments = [];
 
   if (typeof options === 'function') {
@@ -134,7 +130,7 @@ function line(str, options, fn) {
   var stacked = null;
 
   while (startIdx !== -1 && endIdx < len) {
-    if (startIdx >= len || endIdx >= len) {
+    if (startIdx >= len || endIdx > len) {
       break;
     }
 
@@ -143,16 +139,10 @@ function line(str, options, fn) {
       endIdx = len;
     }
 
-    var quoted = utils.isQuotedString(startIdx, ranges);
     var comment = new Line(str, startIdx, endIdx);
-
     startIdx = start(str, endIdx);
-    if (quoted) {
-      startIdx = endIdx + 1;
-      continue;
-    }
 
-    if (prev && combine && isStacked(comment, prev, opts)) {
+    if (prev && combine && isStacked(comment, prev, opts, cache)) {
       var curr = comment.loc.end.line;
       var last = comments[comments.length - 1];
       prev = merge(str, comment, prev);

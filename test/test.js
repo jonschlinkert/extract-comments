@@ -3,8 +3,7 @@
 require('mocha');
 require('should');
 var assert = require('assert');
-var context = require('code-context');
-var extract = require('./');
+var extract = require('..');
 var fs = require('fs');
 
 function read(fp) {
@@ -16,6 +15,13 @@ describe('block comments', function () {
     var str = '/**\n * this is\n *\n * a comment\n*/\n\nvar foo = "bar";\n';
     var actual = extract(str);
     assert(actual[0].raw === '/**\n * this is\n *\n * a comment\n*/');
+  });
+
+  it.only('should ...', function () {
+    var str = read('mixed.js');
+    var actual = extract.block(str);
+    // console.log(JSON.stringify(actual, null, 2))
+    // assert(actual[0].raw === '/**\n * this is\n *\n * a comment\n*/');
   });
 
   it('should not extract comments in quoted strings', function () {
@@ -76,7 +82,7 @@ describe('block comments', function () {
 
 describe('code', function () {
   it('should get the code line that follows the comment', function () {
-    var str = '/**\n * this is\n *\n * a comment\n*/\n\n\nvar foo = "bar";\n';
+    var str = '/**\n * this is\n *\n * a comment\n*/\n\n\nvar foo = "bar";\n// var one = two';
     var actual = extract(str);
     assert(actual[0].code.value === 'var foo = "bar";');
   });
@@ -90,6 +96,13 @@ describe('code', function () {
     assert(start === 36);
     assert(end === 52);
     assert(str.slice(start, end) === 'var foo = "bar";');
+  });
+
+  it('should get comments after code', function () {
+    var str = '/**\n * this is\n *\n * a comment\n*/\n\n\nvar foo = "bar";\n/* foo */';
+    var actual = extract(str);
+    var comment = actual[1];
+    assert(comment.raw === '/* foo */');
   });
 
   it('should get the code line number', function () {
