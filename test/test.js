@@ -42,6 +42,12 @@ describe('block comments', function () {
     assert(actual[0].raw === '/*a, b, c*/');
   });
 
+  it('should extract comments after quoted strings', function () {
+    var a = '"some code"\n/**\n * some comment\n*/\n';
+    var actual = extract(a);
+    assert(actual.length === 1);
+  });
+
   it('should strip leading stars to create the "value" property', function () {
     var str = '/**\n * this is\n *\n * a comment\n*/\nvar foo = "bar";\n';
     var actual = extract(str);
