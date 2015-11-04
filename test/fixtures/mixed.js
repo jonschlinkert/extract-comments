@@ -4,7 +4,7 @@
  */
 'use strict';
 
-/**!
+/**
  * and this multiline
  * block comment
  */

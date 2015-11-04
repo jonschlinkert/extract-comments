@@ -1,5 +1,5 @@
 /**
- * Initialize Assemble.
+ * Initialize App.
  *
  *   - setup default configuration
  *   - setup default middleware
@@ -7,21 +7,7 @@
  * @api private
  */
 
-Assemble.prototype.foo = function(options) {
-  var opts = extend(this.options, options);
-
-  this.files = new Files();
-  this.layoutEngines = {};
-  this.engines = {};
-
-  collections.cache = [];
-
-  this.defaultConfig(opts);
-  this.defaultTemplates(opts);
-  this.defaultParsers(opts);
-  this.defaultEngines(opts);
-  this.defaultHighlighter(opts);
-  this.option(opts);
+App.prototype.foo = function(options) {
 };
 
 // this
@@ -33,7 +19,7 @@ Assemble.prototype.foo = function(options) {
 var str = '// foo bar'
 
 /**
- * Expose `Assemble`
+ * Expose `App`
  */
 
-module.exports = Assemble;
+module.exports = App;
