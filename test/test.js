@@ -151,6 +151,12 @@ describe('code', function() {
     assert.equal(actual[0].code.value, 'var foo = "bar";');
   });
 
+  it('should get a code line that immediately follows the comment', function() {
+    var str = '/**\n * this is\n *\n * a comment\n*/\nvar foo = "bar";\n// var one = two';
+    var actual = extract(str);
+    assert.equal(actual[0].code.value, 'var foo = "bar";');
+  });
+
   it('should not get a comment following a comment', function() {
     var str = '/**\n * this is\n *\n * a comment\n*/\n// var one = two';
     var actual = extract(str);
