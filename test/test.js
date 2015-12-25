@@ -35,6 +35,12 @@ describe('comments', function() {
     assert.deepEqual(actual, []);
   });
 
+  it('should not mistake escaped slashes for comments', function() {
+    // see https://github.com/jonschlinkert/extract-comments/issues/12
+    var actual = extract.line("'foo/bar'.replace(/o\\//, 'g')");
+    assert.deepEqual(actual, []);
+  });
+
   it('should support passing a callback as the last argument', function() {
     var str = read('mixed.js');
     var actual = extract(str, function(comment) {

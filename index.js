@@ -86,6 +86,12 @@ function factory(open, close, Ctor) {
 
     var res = [];
     var start = str.indexOf(open);
+
+    // respect escaped slashes
+    if (str.charAt(start - 1) === '\\') {
+      start = str.indexOf(open, start + 2);
+    }
+
     var end = str.indexOf(close, start);
     var len = str.length;
     if (end === -1) {
