@@ -2,9 +2,10 @@
 
 require('mocha');
 require('should');
+var fs = require('fs');
+var path = require('path');
 var assert = require('assert');
 var extract = require('..');
-var fs = require('fs');
 
 function read(fp) {
   return fs.readFileSync(__dirname + '/fixtures/' + fp, 'utf8');
@@ -31,6 +32,12 @@ describe('comments', function() {
 
   it('should return an empty array if no comments are found', function() {
     var str = 'foo';
+    var actual = extract(str);
+    assert.deepEqual(actual, []);
+  });
+
+  it('should not mangle json', function() {
+    var str = fs.readFileSync(path.join(process.cwd(), 'package.json'), 'utf8');
     var actual = extract(str);
     assert.deepEqual(actual, []);
   });
