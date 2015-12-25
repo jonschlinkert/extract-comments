@@ -64,6 +64,9 @@
       "ignore": [
         "fixtures"
       ]
-    }
+    },
+    "plugins": [
+      "gulp-format-md"
+    ]
   }
 }
