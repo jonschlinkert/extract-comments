@@ -1,6 +1,5 @@
 'use strict';
 
-var extend = require('extend-shallow');
 var Block = require('./lib/block');
 var Line = require('./lib/line');
 var utils = require('./lib/utils');
@@ -80,7 +79,7 @@ function factory(open, close, Ctor) {
       fn = utils.identity;
     }
 
-    var opts = extend({}, options);
+    var opts = utils.extend({}, options);
     str = utils.normalize(str);
     str = utils.escapeQuoted(str);
 
