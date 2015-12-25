@@ -158,14 +158,14 @@ describe('block comments', function() {
 });
 
 describe('code', function() {
-  it('should get the code line that follows the comment', function() {
-    var str = '/**\n * this is\n *\n * a comment\n*/\n\n\nvar foo = "bar";\n// var one = two';
+  it('should get the first line of code after a comment', function() {
+    var str = '/**\n * this is\n *\n * a comment\n*/\nvar foo = "bar";\n// var one = two';
     var actual = extract(str);
     assert.equal(actual[0].code.value, 'var foo = "bar";');
   });
 
-  it('should get a code line that immediately follows the comment', function() {
-    var str = '/**\n * this is\n *\n * a comment\n*/\nvar foo = "bar";\n// var one = two';
+  it('should get the first line of code multiple lines after a comment', function() {
+    var str = '/**\n * this is\n *\n * a comment\n*/\n\n\nvar foo = "bar";\n// var one = two';
     var actual = extract(str);
     assert.equal(actual[0].code.value, 'var foo = "bar";');
   });
@@ -200,7 +200,7 @@ describe('code', function() {
     var code = actual[0].code;
     var start = code.loc.start.line;
     var lines = str.split('\n');
-    var line = lines.indexOf('var foo = "bar";');
+    var line = lines.indexOf('var foo = "bar";') + 1;
     assert.equal(line, start);
   });
 });
