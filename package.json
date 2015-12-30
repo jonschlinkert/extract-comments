@@ -24,9 +24,7 @@
     "define-property": "^0.2.5",
     "esprima-extract-comments": "^0.2.1",
     "extend-shallow": "^2.0.1",
-    "lazy-cache": "^1.0.3",
-    "parse-code-context": "^0.2.1",
-    "use": "^1.1.2"
+    "parse-code-context": "^0.2.1"
   },
   "devDependencies": {
     "gulp": "^3.9.0",
