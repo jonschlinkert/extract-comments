@@ -20,9 +20,12 @@ function comments(str, options, fn) {
   if (typeof str !== 'string') {
     throw new TypeError('expected a string');
   }
-  return block(str, options, fn)
-    .concat(line(str, options, fn))
-    .sort(compare);
+
+  var blocks = block(str, options, fn);
+  var lines = line(str, options, fn);
+
+  blocks = blocks.concat(lines);
+  return blocks.sort(compare);
 }
 
 /**
@@ -38,7 +41,8 @@ function comments(str, options, fn) {
  */
 
 function block(str, options, fn) {
-  return factory('/*', '*/', Block)(str, options, fn);
+  var comments = factory(Block, { open: '/*', close: '*/' });
+  return comments(str, options, fn);
 }
 
 /**
@@ -54,7 +58,8 @@ function block(str, options, fn) {
  */
 
 function line(str, options, fn) {
-  return factory('//', '\n', Line)(str, options, fn);
+  var comments = factory(Line, { open: '//', close: '\n' });
+  return comments(str, options, fn);
 }
 
 /**
@@ -64,7 +69,11 @@ function line(str, options, fn) {
  * @return {String}
  */
 
-function factory(open, close, Ctor) {
+function factory(Ctor, config) {
+  config = config || {};
+  var open = config.open;
+  var close = config.close;
+
   return function(str, options, fn) {
     if (typeof str !== 'string') {
       throw new TypeError('expected a string');
@@ -79,18 +88,15 @@ function factory(open, close, Ctor) {
       fn = utils.identity;
     }
 
+    // shallow clone options
     var opts = utils.extend({}, options);
+
+    // normalize newlines and strip BOM
     str = utils.normalize(str);
-    str = utils.escapeQuoted(str);
+    // str = utils.escapeQuoted(str);
 
-    var res = [];
+    var comments = [];
     var start = str.indexOf(open);
-
-    // respect escaped slashes
-    if (str.charAt(start - 1) === '\\') {
-      start = str.indexOf(open, start + 2);
-    }
-
     var end = str.indexOf(close, start);
     var len = str.length;
     if (end === -1) {
@@ -98,18 +104,26 @@ function factory(open, close, Ctor) {
     }
 
     while (start !== -1 && end <= len) {
-      var comment = fn(new Ctor(str, start, end, open, close));
-      res.push(comment);
-      if (opts.first && res.length === 1) {
-        return res;
+      var prev = str.charAt(start - 1);
+
+      // commentspect escaped slashes and urls
+      if (prev !== '\\' && prev !== ':') {
+        var comment = new Ctor(str, start, end, open, close);
+        comments.push(fn(comment));
       }
-      start = str.indexOf(open, end + 1);
+
+      if (opts.first && comments.length === 1) {
+        return comments;
+      }
+
+      start = str.indexOf(open, end + close.length);
       end = str.indexOf(close, start);
       if (end === -1) {
         end = len;
       }
     }
-    return res;
+
+    return comments;
   };
 }
 
