@@ -11,8 +11,7 @@
   "license": "MIT",
   "files": [
     "index.js",
-    "lib/",
-    "utils.js"
+    "lib/"
   ],
   "main": "index.js",
   "engines": {
@@ -22,14 +21,12 @@
     "test": "gulp"
   },
   "dependencies": {
-    "cr": "^0.1.0",
-    "export-files": "^2.1.0",
+    "define-property": "^0.2.5",
+    "esprima-extract-comments": "^0.2.1",
     "extend-shallow": "^2.0.1",
     "lazy-cache": "^1.0.3",
-    "noncharacters": "^1.1.0",
     "parse-code-context": "^0.2.1",
-    "quoted-string-regex": "^0.1.1",
-    "strip-bom-string": "^0.1.2"
+    "use": "^1.1.2"
   },
   "devDependencies": {
     "gulp": "^3.9.0",

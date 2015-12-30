@@ -5,7 +5,7 @@ require('should');
 var fs = require('fs');
 var path = require('path');
 var assert = require('assert');
-var extract = require('..');
+var extract = require('../comments');
 
 function read(fp) {
   return fs.readFileSync(__dirname + '/fixtures/' + fp, 'utf8');
@@ -26,18 +26,12 @@ describe('comments', function() {
   it('should get block comments and line comments', function() {
     var str = read('mixed.js');
     var actual = extract(str);
-    assert.equal(actual[0].raw, '/*!\n * this is a multiline\n * block comment\n */');
-    assert.equal(actual[actual.length - 1].raw, '// eos');
+    assert.equal(actual[0].raw, '*\n * and this multiline\n * block comment\n ');
+    assert.equal(actual[actual.length - 1].raw, ' eos');
   });
 
   it('should return an empty array if no comments are found', function() {
     var str = 'foo';
-    var actual = extract(str);
-    assert.deepEqual(actual, []);
-  });
-
-  it('should not mangle json', function() {
-    var str = fs.readFileSync(path.join(process.cwd(), 'package.json'), 'utf8');
     var actual = extract(str);
     assert.deepEqual(actual, []);
   });
@@ -85,31 +79,31 @@ describe('block comments', function() {
   it('should extract a block comment', function() {
     var str = '/**\n * this is\n *\n * a comment\n*/\n\nvar foo = "bar";\n';
     var actual = extract(str);
-    assert.equal(actual[0].raw, '/**\n * this is\n *\n * a comment\n*/');
+    assert.equal(actual[0].value, '\nthis is\na comment');
   });
 
   it('should strip protected comments', function() {
     var str = read('mixed.js');
     var actual = extract.block(str);
-    assert.equal(actual[0].raw, '/*!\n * this is a multiline\n * block comment\n */');
+    assert.equal(actual[0].value, '\nand this multiline\nblock comment');
   });
 
   it('should not extract comments in quoted strings', function() {
     var a = '/* this is a block comment */\n\nvar foo = "/* bar */"';
     var actual = extract(a);
     assert.equal(actual.length, 1);
-    assert.equal(actual[0].raw, '/* this is a block comment */');
+    assert.equal(actual[0].value, 'this is a block comment');
 
     var b = '/* this is a block comment */\n\nvar foo = "abc /* bar */ xyz "';
     var actual = extract(b);
     assert.equal(actual.length, 1);
-    assert.equal(actual[0].raw, '/* this is a block comment */');
+    assert.equal(actual[0].value, 'this is a block comment');
   });
 
   it('should extract comments in functions', function() {
-    var a = 'function foo(/*a, b, c*/);';
+    var a = 'function foo(/*a, b, c*/) {}';
     var actual = extract(a);
-    assert.equal(actual[0].raw, '/*a, b, c*/');
+    assert.equal(actual[0].value, 'a, b, c');
   });
 
   it('should extract comments after quoted strings', function() {
@@ -121,7 +115,7 @@ describe('block comments', function() {
   it('should strip leading stars to create the "value" property', function() {
     var str = '/**\n * this is\n *\n * a comment\n*/\nvar foo = "bar";\n';
     var actual = extract(str);
-    assert.equal(actual[0].value, '\nthis is\n\na comment\n');
+    assert.equal(actual[0].value, '\nthis is\na comment');
   });
 
   it('should get the starting line number', function() {
@@ -133,7 +127,7 @@ describe('block comments', function() {
   it('should get the starting index', function() {
     var str = '/**\n * this is\n *\n * a comment\n*/\nvar foo = "bar";\n';
     var actual = extract(str);
-    assert.equal(actual[0].loc.start.pos, 0);
+    assert.equal(actual[0].loc.start.column, 0);
   });
 
   it('should get the ending line number', function() {
@@ -146,7 +140,7 @@ describe('block comments', function() {
     var str = '/**\n * this is\n *\n * a comment\n*/\nvar foo = "bar";\n';
     var actual = extract(str);
     var loc = actual[0].loc;
-    assert.equal(loc.end.pos, 33);
+    assert.equal(loc.end.column, 2);
   });
 });
 
@@ -173,8 +167,8 @@ describe('code', function() {
     var str = '/**\n * this is\n *\n * a comment\n*/\n\n\nvar foo = "bar";\n';
     var actual = extract(str);
     var code = actual[0].code;
-    var start = code.loc.start.pos;
-    var end = code.loc.end.pos;
+    var start = code.loc.start.column;
+    var end = code.loc.end.column;
     assert.equal(start, 36);
     assert.equal(end, 52);
     assert.equal(str.slice(start, end), 'var foo = "bar";');
@@ -184,7 +178,7 @@ describe('code', function() {
     var str = '/**\n * this is\n *\n * a comment\n*/\n\n\nvar foo = "bar";\n/* foo */';
     var actual = extract(str);
     var comment = actual[1];
-    assert.equal(comment.raw, '/* foo */');
+    assert.equal(comment.raw, ' foo ');
   });
 
   it('should get the code line number', function() {
@@ -225,20 +219,19 @@ describe('line comments', function() {
   it('should extract a line comment', function() {
     var str = '// this is a line comment\n\nvar foo = "bar";\n';
     var actual = extract(str);
-    assert.equal(actual[0].raw, '// this is a line comment');
+    assert.equal(actual[0].raw, ' this is a line comment');
   });
 
-  it.skip('should not extract comments in quoted strings', function() {
+  it('should not extract comments in quoted strings', function() {
     var a = '// this is a line comment\n\nvar foo = ". // \' \\ . // \' \\ .";\n';
     var actual = extract(a);
-    console.log(actual)
     assert.equal(actual.length, 1);
-    assert.equal(actual[0].raw, '// this is a line comment');
+    assert.equal(actual[0].raw, ' this is a line comment');
 
     var b = '// this is a line comment\n\nvar foo = "// one two"';
     var actual = extract(b);
     assert.equal(actual.length, 1);
-    assert.equal(actual[0].raw, '// this is a line comment');
+    assert.equal(actual[0].raw, ' this is a line comment');
   });
 
   it('should strip leading slashes to create the "value" property', function() {
@@ -256,7 +249,7 @@ describe('line comments', function() {
   it('should get the starting index', function() {
     var str = '// this is a line comment\n\nvar foo = "bar";\n';
     var actual = extract(str);
-    assert.equal(actual[0].loc.start.pos, 0);
+    assert.equal(actual[0].loc.start.column, 0);
   });
 
   it('should get the ending line number', function() {
@@ -268,7 +261,7 @@ describe('line comments', function() {
   it('should get the ending index', function() {
     var str = '// this is a line comment\n\nvar foo = "bar";\n';
     var actual = extract(str);
-    assert.equal(actual[0].loc.end.pos, 25);
+    assert.equal(actual[0].loc.end.column, 25);
   });
 });
 
@@ -287,18 +280,18 @@ describe('first', function() {
   it('should extract the first block comment', function() {
     var str = '/**\n * this is\n *\n * a comment\n*/\nvar foo = "bar";\n/* baz */';
     var actual = extract.first(str);
-    assert.equal(actual, '/**\n * this is\n *\n * a comment\n*/');
+    assert.equal(actual[0].value, '\nthis is\na comment');
   });
 
   it('should extract the first line comment', function() {
     var str = '// this is a comment\n\nvar foo = "bar";\n/* baz */';
     var actual = extract.first(str);
-    assert.equal(actual, '// this is a comment');
+    assert.equal(actual[0].value, 'this is a comment');
   });
 
-  it('should return null if no comments are found', function() {
+  it('should return an empty array if no comments are found', function() {
     var str = 'foo';
     var actual = extract.first(str);
-    assert.equal(actual, null);
+    assert.deepEqual(actual, []);
   });
 });
