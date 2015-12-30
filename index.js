@@ -1,8 +1,14 @@
+/*!
+ * extract-comments <https://github.com/jonschlinkert/extract-comments>
+ *
+ * Copyright (c) 2014 Jon Schlinkert, contributors.
+ * Licensed under the MIT license.
+ */
+
 'use strict';
 
-var Block = require('./lib/block');
-var Line = require('./lib/line');
-var utils = require('./lib/utils');
+var extend = require('extend-shallow');
+var Comments = require('./lib/comments');
 
 /**
  * Extract comments from the given `string`.
@@ -16,16 +22,14 @@ var utils = require('./lib/utils');
  * @api public
  */
 
-function comments(str, options, fn) {
-  if (typeof str !== 'string') {
-    throw new TypeError('expected a string');
+function extract(str, options, fn) {
+  if (typeof options === 'function') {
+    fn = options;
+    options = {};
   }
-
-  var blocks = block(str, options, fn);
-  var lines = line(str, options, fn);
-
-  blocks = blocks.concat(lines);
-  return blocks.sort(compare);
+  var extracted = new Comments(options, fn);
+  var res = extracted.extract(str);
+  return res.comments || [];
 }
 
 /**
@@ -40,9 +44,8 @@ function comments(str, options, fn) {
  * @api public
  */
 
-function block(str, options, fn) {
-  var comments = factory(Block, { open: '/*', close: '*/' });
-  return comments(str, options, fn);
+function block(str, options) {
+  return extract(str, extend({line: false}, options));
 }
 
 /**
@@ -57,74 +60,8 @@ function block(str, options, fn) {
  * @api public
  */
 
-function line(str, options, fn) {
-  var comments = factory(Line, { open: '//', close: '\n' });
-  return comments(str, options, fn);
-}
-
-/**
- * Factory for extracting comments from a string.
- *
- * @param {String} `string`
- * @return {String}
- */
-
-function factory(Ctor, config) {
-  config = config || {};
-  var open = config.open;
-  var close = config.close;
-
-  return function(str, options, fn) {
-    if (typeof str !== 'string') {
-      throw new TypeError('expected a string');
-    }
-
-    if (typeof options === 'function') {
-      fn = options;
-      options = {};
-    }
-
-    if (typeof fn !== 'function') {
-      fn = utils.identity;
-    }
-
-    // shallow clone options
-    var opts = utils.extend({}, options);
-
-    // normalize newlines and strip BOM
-    str = utils.normalize(str);
-    // str = utils.escapeQuoted(str);
-
-    var comments = [];
-    var start = str.indexOf(open);
-    var end = str.indexOf(close, start);
-    var len = str.length;
-    if (end === -1) {
-      end = len;
-    }
-
-    while (start !== -1 && end <= len) {
-      var prev = str.charAt(start - 1);
-
-      // commentspect escaped slashes and urls
-      if (prev !== '\\' && prev !== ':') {
-        var comment = new Ctor(str, start, end, open, close);
-        comments.push(fn(comment));
-      }
-
-      if (opts.first && comments.length === 1) {
-        return comments;
-      }
-
-      start = str.indexOf(open, end + close.length);
-      end = str.indexOf(close, start);
-      if (end === -1) {
-        end = len;
-      }
-    }
-
-    return comments;
-  };
+function line(str, options) {
+  return extract(str, extend({block: false}, options));
 }
 
 /**
@@ -137,53 +74,26 @@ function factory(Ctor, config) {
  */
 
 function first(str) {
-  if (typeof str !== 'string') {
-    throw new TypeError('expected a string');
-  }
-
-  var arr = comments(str, {first: true});
-  if (arr && arr.length) {
-    return arr[0].raw;
-  } else {
-    return null;
-  }
+  return extract(str, {first: true});
 }
 
 /**
- * Utility for sorting line and block comments into
- * the correct order.
+ * Expose `extract`
  */
 
-function compare(a, b) {
-  return a.loc.start.pos - b.loc.start.pos;
-}
+module.exports = extract;
 
 /**
- * Expose `extract` module
- */
-
-module.exports = comments;
-
-/**
- * Expose `extract.first` method
- */
-
-module.exports.first = first;
-
-/**
- * Expose `extract.block` method
+ * Expose convenience methods
  */
 
 module.exports.block = block;
-
-/**
- * Expose `extract.line` method
- */
-
 module.exports.line = line;
+module.exports.first = first;
 
 /**
- * Expose `extract.factory` method
+ * Expose `Comments` constructor, to
+ * allow custom plugins to be registered.
  */
 
-module.exports.factory = factory;
+module.exports.Comments = Comments;
