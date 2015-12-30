@@ -1,6 +1,6 @@
 # extract-comments [![NPM version](https://img.shields.io/npm/v/extract-comments.svg)](https://www.npmjs.com/package/extract-comments)
 
-> Extract code comments from string or from a glob of files.
+> Uses esprima to extract line and block comments from a string of JavaScript. Also optionally parses code context (the next line of code after a comment).
 
 ## Install
 
@@ -130,6 +130,11 @@ Lines        : 100% (132/132)
 ```
 
 ## Release history
+
+**v0.10.0**
+
+* Parsing is now handled by esprima
+* Breaking change: since parsing is now done by esprima, on both the line and block comment objects, the `loc.start.pos` and `loc.end.pos` properties have been renamed to `loc.start.column` and `loc.end.column`.
 
 **v0.9.0**
 
