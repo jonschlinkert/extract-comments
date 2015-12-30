@@ -1,7 +1,7 @@
 {
   "name": "extract-comments",
-  "description": "Extract code comments from string or from a glob of files.",
-  "version": "0.10.0",
+  "description": "Uses esprima to extract line and block comments from a string of JavaScript. Also optionally parses code context (the next line of code after a comment).",
+  "version": "0.10.1",
   "homepage": "https://github.com/jonschlinkert/extract-comments",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
   "repository": "jonschlinkert/extract-comments",
@@ -37,6 +37,7 @@
     "time-diff": "^0.1.0"
   },
   "keywords": [
+    "ast",
     "block",
     "code",
     "comment",
@@ -46,7 +47,10 @@
     "extract",
     "glob",
     "javascript",
-    "parse"
+    "line",
+    "parse",
+    "tokenize",
+    "tokens"
   ],
   "verb": {
     "related": {
