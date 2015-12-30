@@ -5,7 +5,7 @@ require('should');
 var fs = require('fs');
 var path = require('path');
 var assert = require('assert');
-var extract = require('../comments');
+var extract = require('..');
 
 function read(fp) {
   return fs.readFileSync(__dirname + '/fixtures/' + fp, 'utf8');
@@ -79,7 +79,7 @@ describe('block comments', function() {
   it('should extract a block comment', function() {
     var str = '/**\n * this is\n *\n * a comment\n*/\n\nvar foo = "bar";\n';
     var actual = extract(str);
-    assert.equal(actual[0].value, '\nthis is\na comment');
+    assert.equal(actual[0].value, '\nthis is\n\na comment');
   });
 
   it('should strip protected comments', function() {
@@ -115,7 +115,7 @@ describe('block comments', function() {
   it('should strip leading stars to create the "value" property', function() {
     var str = '/**\n * this is\n *\n * a comment\n*/\nvar foo = "bar";\n';
     var actual = extract(str);
-    assert.equal(actual[0].value, '\nthis is\na comment');
+    assert.equal(actual[0].value, '\nthis is\n\na comment');
   });
 
   it('should get the starting line number', function() {
@@ -280,7 +280,7 @@ describe('first', function() {
   it('should extract the first block comment', function() {
     var str = '/**\n * this is\n *\n * a comment\n*/\nvar foo = "bar";\n/* baz */';
     var actual = extract.first(str);
-    assert.equal(actual[0].value, '\nthis is\na comment');
+    assert.equal(actual[0].value, '\nthis is\n\na comment');
   });
 
   it('should extract the first line comment', function() {
