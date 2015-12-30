@@ -38,6 +38,7 @@ function extract(str, options, fn) {
  * ```js
  * extract.block(str, options);
  * ```
+ * @name .block
  * @param {String} `string`
  * @param {Object} `options` Pass `first: true` to return after the first comment is found.
  * @return {String}
@@ -54,6 +55,7 @@ function block(str, options) {
  * ```js
  * extract.line(str, options);
  * ```
+ * @name .line
  * @param {String} `string`
  * @param {Object} `options` Pass `first: true` to return after the first comment is found.
  * @return {String}
@@ -67,6 +69,7 @@ function line(str, options) {
 /**
  * Extract the first comment from the given `string`.
  *
+ * @name .first
  * @param {String} `string`
  * @param {Object} `options` Pass `first: true` to return after the first comment is found.
  * @return {String}
