@@ -26,23 +26,22 @@
     "test": "gulp"
   },
   "dependencies": {
-    "define-property": "^0.2.5",
+    "define-property": "^2.0.0",
     "esprima-extract-comments": "^0.2.1",
-    "extend-shallow": "^2.0.1",
-    "lazy-cache": "^1.0.3",
-    "parse-code-context": "^0.2.1"
+    "extend-shallow": "^3.0.1",
+    "lazy-cache": "^2.0.2",
+    "parse-code-context": "^0.2.2"
   },
   "devDependencies": {
     "babel-extract-comments": "^0.1.0",
     "espree-extract-comments": "^0.1.0",
-    "gulp": "^3.9.0",
-    "gulp-eslint": "^1.1.1",
-    "gulp-format-md": "^0.1.4",
-    "gulp-istanbul": "^0.10.3",
-    "gulp-mocha": "^2.2.0",
-    "mocha": "*",
-    "should": "*",
-    "time-diff": "^0.1.0"
+    "gulp": "^3.9.1",
+    "gulp-eslint": "^4.0.0",
+    "gulp-format-md": "^1.0.0",
+    "gulp-istanbul": "^1.1.2",
+    "gulp-mocha": "^3.0.1",
+    "mocha": "^3.5.3",
+    "time-diff": "^0.3.1"
   },
   "keywords": [
     "ast",
@@ -61,6 +60,14 @@
     "tokens"
   ],
   "verb": {
+    "toc": false,
+    "layout": "default",
+    "tasks": [
+      "readme"
+    ],
+    "plugins": [
+      "gulp-format-md"
+    ],
     "related": {
       "list": [
         "babel-extract-comments",
@@ -70,15 +77,14 @@
         "parse-comments"
       ]
     },
-    "plugins": [
-      "gulp-format-md"
-    ],
-    "layout": "default",
     "reflinks": [
       "babel-extract-comments",
       "espree-extract-comments",
       "esprima",
       "esprima-extract-comments"
-    ]
+    ],
+    "lint": {
+      "reflinks": true
+    }
   }
 }

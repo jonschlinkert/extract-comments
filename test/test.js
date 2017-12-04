@@ -1,7 +1,6 @@
 'use strict';
 
 require('mocha');
-require('should');
 var fs = require('fs');
 var path = require('path');
 var assert = require('assert');
@@ -12,20 +11,33 @@ function read(fp) {
 }
 
 describe('comments', function() {
-  it('should throw an error when comment is not a string', function(cb) {
-    try {
+  it('should throw an error when comment is not a string', function() {
+    assert.throws(function() {
       extract();
-      cb('expected an error');
-    } catch (err) {
-      assert(err);
-      assert.equal(err.message, 'expected a string');
-      cb();
-    }
+    }, /expected/i);
   });
 
   it('should get block comments and line comments', function() {
     var str = read('mixed.js');
     var actual = extract(str);
+    assert.equal(actual[0].raw, '*\n * and this multiline\n * block comment\n ');
+    assert.equal(actual[actual.length - 1].raw, ' eos');
+  });
+
+  it('should support passing a custom extractor (espree)', function() {
+    var str = read('mixed.js');
+    var actual = extract(str, {
+      extractor: require('espree-extract-comments')
+    });
+    assert.equal(actual[0].raw, '*\n * and this multiline\n * block comment\n ');
+    assert.equal(actual[actual.length - 1].raw, ' eos');
+  });
+
+  it('should support passing a custom extractor (babel)', function() {
+    var str = read('mixed.js');
+    var actual = extract(str, {
+      extractor: require('babel-extract-comments')
+    });
     assert.equal(actual[0].raw, '*\n * and this multiline\n * block comment\n ');
     assert.equal(actual[actual.length - 1].raw, ' eos');
   });
