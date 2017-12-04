@@ -4,14 +4,19 @@
   "version": "0.10.1",
   "homepage": "https://github.com/jonschlinkert/extract-comments",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
+  "contributors": [
+    "Caleb (https://github.com/cazzer)",
+    "Jon Schlinkert (http://twitter.com/jonschlinkert)",
+    "Tomek Wiszniewski (http://tomek.wiszniewski.cc)"
+  ],
   "repository": "jonschlinkert/extract-comments",
   "bugs": {
-    "bugs": "https://github.com/jonschlinkert/extract-comments/issues"
+    "url": "https://github.com/jonschlinkert/extract-comments/issues"
   },
   "license": "MIT",
   "files": [
     "index.js",
-    "lib/"
+    "lib"
   ],
   "main": "index.js",
   "engines": {
@@ -24,9 +29,12 @@
     "define-property": "^0.2.5",
     "esprima-extract-comments": "^0.2.1",
     "extend-shallow": "^2.0.1",
+    "lazy-cache": "^1.0.3",
     "parse-code-context": "^0.2.1"
   },
   "devDependencies": {
+    "babel-extract-comments": "^0.1.0",
+    "espree-extract-comments": "^0.1.0",
     "gulp": "^3.9.0",
     "gulp-eslint": "^1.1.1",
     "gulp-format-md": "^0.1.4",
@@ -55,19 +63,22 @@
   "verb": {
     "related": {
       "list": [
+        "babel-extract-comments",
         "code-context",
+        "espree-extract-comments",
         "esprima-extract-comments",
         "parse-comments"
-      ],
-      "description": ""
-    },
-    "deps": {
-      "ignore": [
-        "fixtures"
       ]
     },
     "plugins": [
       "gulp-format-md"
+    ],
+    "layout": "default",
+    "reflinks": [
+      "babel-extract-comments",
+      "espree-extract-comments",
+      "esprima",
+      "esprima-extract-comments"
     ]
   }
 }

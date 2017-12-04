@@ -1,14 +1,14 @@
 /*!
  * extract-comments <https://github.com/jonschlinkert/extract-comments>
  *
- * Copyright (c) 2014 Jon Schlinkert, contributors.
- * Licensed under the MIT license.
+ * Copyright (c) 2014-2017, Jon Schlinkert.
+ * Released under the MIT License.
  */
 
 'use strict';
 
 var extend = require('extend-shallow');
-var Comments = require('./lib/comments');
+var Extractor = require('./lib/extractor');
 
 /**
  * Extract comments from the given `string`.
@@ -27,8 +27,9 @@ function extract(str, options, fn) {
     fn = options;
     options = {};
   }
-  var extracted = new Comments(options, fn);
-  var res = extracted.extract(str);
+
+  var extractor = new Extractor(options, fn);
+  var res = extractor.extract(str);
   return res.comments || [];
 }
 
@@ -95,8 +96,8 @@ module.exports.line = line;
 module.exports.first = first;
 
 /**
- * Expose `Comments` constructor, to
+ * Expose `Extractor` constructor, to
  * allow custom plugins to be registered.
  */
 
-module.exports.Comments = Comments;
+module.exports.Extractor = Extractor;
