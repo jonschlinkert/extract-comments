@@ -18,7 +18,7 @@ describe('comments', function() {
   it('should get block comments and line comments', function() {
     const str = read('mixed.js');
     const actual = extract(str);
-    assert.equal(actual[0].raw, '*\n * and this multiline\n * block comment\n ');
+    assert.equal(actual[1].raw, '*\n * and this multiline\n * block comment\n ');
     assert.equal(actual[actual.length - 1].raw, ' eos');
   });
 
@@ -27,7 +27,7 @@ describe('comments', function() {
     const actual = extract(str, {
       extractor: require('espree-extract-comments')
     });
-    assert.equal(actual[0].raw, '*\n * and this multiline\n * block comment\n ');
+    assert.equal(actual[1].raw, '*\n * and this multiline\n * block comment\n ');
     assert.equal(actual[actual.length - 1].raw, ' eos');
   });
 
@@ -36,7 +36,7 @@ describe('comments', function() {
     const actual = extract(str, {
       extractor: require('babel-extract-comments')
     });
-    assert.equal(actual[0].raw, '*\n * and this multiline\n * block comment\n ');
+    assert.equal(actual[1].raw, '*\n * and this multiline\n * block comment\n ');
     assert.equal(actual[actual.length - 1].raw, ' eos');
   });
 
@@ -87,7 +87,7 @@ describe('block comments', function() {
 
   it('should strip protected comments', function() {
     const str = read('mixed.js');
-    const actual = extract.block(str);
+    const actual = extract.block(str, { stripProtected: true });
     assert.equal(actual[0].value, '\nand this multiline\nblock comment');
   });
 

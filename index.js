@@ -13,16 +13,18 @@ const Extractor = require('./lib/extractor');
  * Extract comments from the given `string`.
  *
  * ```js
- * extract(str, options);
+ * const extract = require('extract-comments');
+ * console.log(extract(string, options));
  * ```
  * @param {String} `string`
  * @param {Object} `options` Pass `first: true` to return after the first comment is found.
- * @return {String}
+ * @param {Function} `tranformFn` (optional) Tranform function to modify each comment
+ * @return {Array} Returns an array of comment objects
  * @api public
  */
 
-function extract(str, options, fn) {
-  const extractor = new Extractor(options, fn);
+function extract(str, options, tranformFn) {
+  const extractor = new Extractor(options, tranformFn);
   return extractor.extract(str);
 }
 
@@ -30,7 +32,7 @@ function extract(str, options, fn) {
  * Extract block comments from the given `string`.
  *
  * ```js
- * extract.block(str, options);
+ * console.log(extract.block(string, options));
  * ```
  * @name .block
  * @param {String} `string`
@@ -40,14 +42,14 @@ function extract(str, options, fn) {
  */
 
 extract.block = (str, options) => {
-  return extract(str, Object.assign({ line: false }, options));
+  return extract(str, Object.assign({}, options, { line: false }));
 };
 
 /**
  * Extract line comments from the given `string`.
  *
  * ```js
- * extract.line(str, options);
+ * console.log(extract.line(string, options));
  * ```
  * @name .line
  * @param {String} `string`
@@ -57,12 +59,15 @@ extract.block = (str, options) => {
  */
 
 extract.line = (str, options) => {
-  return extract(str, Object.assign({ block: false }, options));
+  return extract(str, Object.assign({}, options, { block: false }));
 };
 
 /**
  * Extract the first comment from the given `string`.
  *
+ * ```js
+ * console.log(extract.first(string, options));
+ * ```
  * @name .first
  * @param {String} `string`
  * @param {Object} `options` Pass `first: true` to return after the first comment is found.
@@ -70,7 +75,9 @@ extract.line = (str, options) => {
  * @api public
  */
 
-extract.first = str => extract(str, { first: true });
+extract.first = (str, options) => {
+  return extract(str, Object.assign({}, options, { first: true }));
+};
 
 /**
  * Expose `Extractor` constructor, to
