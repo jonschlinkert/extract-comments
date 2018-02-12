@@ -1,14 +1,13 @@
 /*!
  * extract-comments <https://github.com/jonschlinkert/extract-comments>
  *
- * Copyright (c) 2014-2017, Jon Schlinkert.
+ * Copyright (c) 2014-2018, Jon Schlinkert.
  * Released under the MIT License.
  */
 
 'use strict';
 
-var extend = require('extend-shallow');
-var Extractor = require('./lib/extractor');
+const Extractor = require('./lib/extractor');
 
 /**
  * Extract comments from the given `string`.
@@ -23,14 +22,8 @@ var Extractor = require('./lib/extractor');
  */
 
 function extract(str, options, fn) {
-  if (typeof options === 'function') {
-    fn = options;
-    options = {};
-  }
-
-  var extractor = new Extractor(options, fn);
-  var res = extractor.extract(str);
-  return res.comments || [];
+  const extractor = new Extractor(options, fn);
+  return extractor.extract(str);
 }
 
 /**
@@ -46,9 +39,9 @@ function extract(str, options, fn) {
  * @api public
  */
 
-function block(str, options) {
-  return extract(str, extend({line: false}, options));
-}
+extract.block = (str, options) => {
+  return extract(str, Object.assign({ line: false }, options));
+};
 
 /**
  * Extract line comments from the given `string`.
@@ -63,9 +56,9 @@ function block(str, options) {
  * @api public
  */
 
-function line(str, options) {
-  return extract(str, extend({block: false}, options));
-}
+extract.line = (str, options) => {
+  return extract(str, Object.assign({ block: false }, options));
+};
 
 /**
  * Extract the first comment from the given `string`.
@@ -77,27 +70,17 @@ function line(str, options) {
  * @api public
  */
 
-function first(str) {
-  return extract(str, {first: true});
-}
-
-/**
- * Expose `extract`
- */
-
-module.exports = extract;
-
-/**
- * Expose convenience methods
- */
-
-module.exports.block = block;
-module.exports.line = line;
-module.exports.first = first;
+extract.first = str => extract(str, { first: true });
 
 /**
  * Expose `Extractor` constructor, to
  * allow custom plugins to be registered.
  */
 
-module.exports.Extractor = Extractor;
+extract.Extractor = Extractor;
+
+/**
+ * Expose `extract`
+ */
+
+module.exports = extract;
