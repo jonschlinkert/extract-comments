@@ -1,7 +1,7 @@
 /*!
  * extract-comments <https://github.com/jonschlinkert/extract-comments>
  *
- * Copyright (c) 2014-2018, Jon Schlinkert.
+ * Copyright (c) 2014-present, Jon Schlinkert.
  * Released under the MIT License.
  */
 
@@ -24,7 +24,7 @@ const Extractor = require('./lib/extractor');
  */
 
 function extract(str, options, tranformFn) {
-  const extractor = new Extractor(options, tranformFn);
+  let extractor = new Extractor(options, tranformFn);
   return extractor.extract(str);
 }
 
