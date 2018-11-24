@@ -1,7 +1,7 @@
 {
   "name": "extract-comments",
   "description": "Uses esprima to extract line and block comments from a string of JavaScript. Also optionally parses code context (the next line of code after a comment).",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "homepage": "https://github.com/jonschlinkert/extract-comments",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
   "contributors": [
